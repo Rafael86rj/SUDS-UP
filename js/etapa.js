@@ -67,6 +67,29 @@ function criarCardOrientacao() {
 }
 
 function criarMapa(rotulo) {
+  if (etapa.numero === 1) {
+    return `
+      <article class="card card-mapa-etapa-01">
+        <h2>${rotulo}</h2>
+        <p class="card__subtitulo" id="mapa-instrucao">Busque um endereço para localizar a região e clique no mapa para marcar um ponto de alagamento.</p>
+        <div class="mapa-busca">
+          <div class="campo">
+            <label for="mapa-endereco">ENDEREÇO</label>
+            <input id="mapa-endereco" type="search" autocomplete="off" placeholder="Ex.: Praça Mauá, Rio de Janeiro">
+          </div>
+          <button class="botao botao--primario" id="mapa-buscar" type="button" disabled>Buscar endereço</button>
+        </div>
+        <p id="mapa-mensagem" class="mapa-mensagem" role="status" aria-live="polite" aria-atomic="true">Carregando mapa…</p>
+        <div id="mapa-etapa-01" class="mapa-interativo" role="region" aria-label="Mapa para localização de pontos de alagamento" aria-describedby="mapa-instrucao"></div>
+        <div class="campos mapa-coordenadas">
+          <div class="campo"><label for="mapa-latitude">Latitude</label><input id="mapa-latitude" type="text" readonly placeholder="Selecione um ponto"></div>
+          <div class="campo"><label for="mapa-longitude">Longitude</label><input id="mapa-longitude" type="text" readonly placeholder="Selecione um ponto"></div>
+        </div>
+        <p class="card__subtitulo">Localização e marcação manual. A seleção permanece apenas enquanto esta página estiver aberta.</p>
+        <p class="card__subtitulo">Pesquisa: Nominatim · Dados © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">colaboradores do OpenStreetMap</a>.</p>
+      </article>
+    `;
+  }
   return `<article class="card"><h2>${rotulo}</h2><div class="mapa-prototipo"><span class="mapa-prototipo__rotulo">Visualização cartográfica ilustrativa</span></div></article>`;
 }
 
@@ -108,6 +131,16 @@ function montarAreaDeTrabalho() {
   if (mapas.includes(etapa.tipoTela)) {
     const tituloMapa = etapa.numero === 1 ? "Mapa dos pontos de alagamento" : etapa.numero === 2 ? "Bacia, relevo e caminho da água" : "Representação espacial da etapa";
     elementos.area.innerHTML = `<div class="grade-trabalho">${criarCardOrientacao()}${criarMapa(tituloMapa)}</div>${criarFormularioPadrao()}`;
+    // O contêiner precisa existir antes do Leaflet. As outras etapas não carregam o módulo.
+    if (etapa.numero === 1) {
+      import("./mapas/etapa-01-mapa.js")
+        .then(modulo => modulo.iniciarMapaEtapa01())
+        .catch(() => {
+          const mensagem = document.querySelector("#mapa-mensagem");
+          mensagem.dataset.tipo = "erro";
+          mensagem.textContent = "Não foi possível carregar o mapa. Verifique sua conexão e recarregue a página.";
+        });
+    }
     return;
   }
 

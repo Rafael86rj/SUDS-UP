@@ -169,3 +169,16 @@ button { cursor: pointer; }
 .modal__resultado { margin: 20px 0; padding: 16px; border-radius: var(--raio-md); background: var(--azul-50); }
 .modal__resultado p { margin-bottom: 0; color: var(--texto-secundario); }
 body.modal-aberto { overflow: hidden; }
+
+/* ETAPA 1 — estilos restritos ao mapa real; os mapas ilustrativos são preservados. */
+.card-mapa-etapa-01 { min-width: 0; }
+.card-mapa-etapa-01 .mapa-busca { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+.card-mapa-etapa-01 .mapa-busca .campo { flex: 1 1 180px; min-width: 0; }
+.card-mapa-etapa-01 .botao:disabled { opacity: .65; cursor: wait; }
+.card-mapa-etapa-01 .mapa-interativo { height: clamp(280px, 50vh, 460px); width: 100%; border-radius: var(--raio-md); background: var(--azul-100); isolation: isolate; z-index: 0; }
+.card-mapa-etapa-01 .mapa-coordenadas { margin-top: 16px; }
+.card-mapa-etapa-01 input[readonly] { background: var(--azul-50); }
+.card-mapa-etapa-01 .mapa-mensagem { min-height: 2.8em; font-size: 12px; line-height: 1.4; color: var(--texto-secundario); }
+.card-mapa-etapa-01 .mapa-mensagem[data-tipo="erro"] { color: var(--erro); }
+.card-mapa-etapa-01 .mapa-mensagem[data-tipo="sucesso"] { color: var(--sucesso); }
+.card-mapa-etapa-01 .card__subtitulo a { text-decoration: underline; }
