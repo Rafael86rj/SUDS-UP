@@ -14,7 +14,7 @@ Não execute `etapa.js` com `node`, porque ele utiliza `document`, objeto fornec
 ## Estrutura
 
 ```text
-projeto-suds-up/
+SUDS-UP/
 ├── assets/
 │   └── images/
 │       ├── mapas/
