@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Etapa | SUDS-UP</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="pagina-etapa">
+  <header class="barra-superior">
+    <a class="marca" href="index.html">
+      <span class="marca__icone" aria-hidden="true">≈</span>
+      <span><strong>SUDS-UP</strong><small>Planejamento urbano sensível à água</small></span>
+    </a>
+    <div class="barra-superior__acoes">
+      <span class="selo">Protótipo acadêmico</span>
+      <span class="status-salvamento">● Rascunho local</span>
+    </div>
+  </header>
+
+  <div class="aplicacao">
+    <aside class="menu-lateral">
+      <p class="menu-lateral__rotulo">PROGRESSO DO ESTUDO</p>
+      <strong id="texto-progresso">Etapa 1 de 17</strong>
+      <div class="barra-progresso"><span id="barra-progresso"></span></div>
+      <nav aria-label="Etapas do estudo">
+        <ol class="lista-etapas" id="lista-etapas"></ol>
+      </nav>
+      <div class="ajuda-lateral">
+        <strong>Precisa de orientação?</strong>
+        <p>Consulte o objetivo, os dados necessários e o resultado esperado.</p>
+        <button class="botao botao--contorno-claro" id="abrir-orientacao" type="button">
+          ⓘ Ver orientações
+        </button>
+      </div>
+    </aside>
+
+    <main class="conteudo-etapa">
+      <div class="cabecalho-etapa">
+        <div>
+          <p class="breadcrumb" id="breadcrumb"></p>
+          <div class="titulo-com-ajuda">
+            <h1 id="titulo-etapa"></h1>
+            <button class="botao-icone" id="abrir-orientacao-icone" type="button" aria-label="Abrir orientações da etapa">i</button>
+          </div>
+          <p class="descricao-etapa" id="descricao-etapa"></p>
+        </div>
+        <span class="selo selo--obrigatoria" id="tipo-etapa">Obrigatória</span>
+      </div>
+
+      <section class="area-trabalho" id="area-trabalho" aria-live="polite"></section>
+
+      <footer class="rodape-etapa">
+        <p>Os dados poderão ser revisados antes da conclusão do estudo.</p>
+        <div>
+          <a class="botao botao--secundario" id="botao-anterior" href="#">← Etapa anterior</a>
+          <a class="botao botao--primario" id="botao-proxima" href="#">Próxima etapa →</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <div class="modal" id="modal-orientacao" hidden>
+    <div class="modal__fundo" data-fechar-modal></div>
+    <section class="modal__caixa" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+      <button class="modal__fechar" type="button" data-fechar-modal aria-label="Fechar orientações">×</button>
+      <p class="modal__rotulo">ORIENTAÇÕES DA ETAPA</p>
+      <h2 id="modal-titulo"></h2>
+      <p id="modal-objetivo"></p>
+      <h3>O que fazer</h3>
+      <ol id="modal-passos"></ol>
+      <div class="modal__resultado">
+        <strong>Resultado esperado</strong>
+        <p id="modal-resultado"></p>
+      </div>
+      <button class="botao botao--primario" type="button" data-fechar-modal>Entendi, continuar</button>
+    </section>
+  </div>
+
+  <script src="js/dados-etapas.js"></script>
+  <script src="js/etapa.js"></script>
+</body>
+</html>

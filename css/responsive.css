@@ -1,0 +1,26 @@
+@media (max-width: 1050px) {
+  .hero { grid-template-columns: 1fr; }
+  .aplicacao { grid-template-columns: 220px minmax(0, 1fr); }
+  .conteudo-etapa { padding-inline: 28px; }
+}
+
+@media (max-width: 780px) {
+  .cabecalho-publico, .barra-superior { padding-inline: 18px; }
+  .marca small, .barra-superior__acoes .status-salvamento { display: none; }
+  .hero { padding: 65px 22px; }
+  .grade-beneficios, .grade-trabalho { grid-template-columns: 1fr; }
+  .aplicacao { display: block; }
+  .menu-lateral { padding: 16px; }
+  .lista-etapas { grid-template-columns: repeat(4, 1fr); }
+  .lista-etapas a { justify-content: center; padding: 7px; }
+  .lista-etapas a strong { display: none; }
+  .ajuda-lateral { display: none; }
+  .conteudo-etapa { padding: 26px 18px; }
+  .cabecalho-etapa, .rodape-etapa { align-items: flex-start; flex-direction: column; }
+  .selo--obrigatoria { margin-top: 0; }
+  .campos { grid-template-columns: 1fr; }
+  .campo--largo { grid-column: auto; }
+  .rodape-etapa > div { width: 100%; }
+  .rodape-etapa .botao { flex: 1; }
+  .rodape-publico { gap: 10px; flex-direction: column; }
+}
