@@ -1,0 +1,33 @@
+/* ------------------------------------------------------------
+   CONSULTA DAS TÉCNICAS — ETAPAS 3 E 7
+   ------------------------------------------------------------
+   Estilos locais usam a paleta existente. A imagem mantém toda a prancha;
+   a ampliação abre o arquivo original, inclusive suas legendas e créditos. */
+.consulta-tecnicas { min-width: 0; line-height: 1.6; }
+.consulta-tecnicas__aviso { padding: 14px; border-left: 3px solid var(--azul-700); background: var(--azul-50); }
+.consulta-tecnicas .campo { min-width: 0; }
+.consulta-tecnicas .campo label { font-size: 13px; }
+.consulta-tecnicas select { min-height: 44px; }
+.consulta-tecnicas select:disabled { opacity: 1; color: var(--texto-secundario); background: var(--azul-50); }
+.consulta-tecnicas__prancha { margin: 0 0 24px; }
+.consulta-tecnicas__prancha img { display: block; width: 100%; height: auto; object-fit: contain; }
+.consulta-tecnicas__prancha figcaption { margin-top: 12px; font-size: 13px; }
+.consulta-tecnicas__prancha a { color: var(--azul-800); text-decoration: underline; display: inline-block; padding-block: 10px; }
+.consulta-tecnicas__bloco { margin-block: 20px; padding: 18px; border: 1px solid var(--borda); border-radius: var(--raio-md); }
+.consulta-tecnicas__bloco h4 { margin: 0 0 12px; color: var(--azul-900); font-size: 16px; }
+.consulta-tecnicas__rotulo { font-weight: 700; }
+.consulta-tecnicas__bloco ul { padding-left: 22px; margin-bottom: 0; }
+.consulta-tecnicas__bloco li + li { margin-top: 14px; }
+.consulta-tecnicas__celula { display: block; color: var(--texto-secundario); }
+.consulta-tecnicas__fonte { font-size: 13px; overflow-wrap: anywhere; }
+.consulta-tecnicas :focus-visible { outline: 3px solid var(--azul-800); outline-offset: 3px; }
+
+/* ------------------------------------------------------------
+   LEITURA EM TELAS PEQUENAS
+   ------------------------------------------------------------
+   Os controles se empilham e os textos quebram sem criar rolagem horizontal. */
+@media (max-width: 780px) {
+  .consulta-tecnicas { padding: 16px; }
+  .consulta-tecnicas .campos { grid-template-columns: minmax(0, 1fr); }
+  .consulta-tecnicas__bloco { padding: 12px; }
+}
