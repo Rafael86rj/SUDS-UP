@@ -182,3 +182,19 @@ body.modal-aberto { overflow: hidden; }
 .card-mapa-etapa-01 .mapa-mensagem[data-tipo="erro"] { color: var(--erro); }
 .card-mapa-etapa-01 .mapa-mensagem[data-tipo="sucesso"] { color: var(--sucesso); }
 .card-mapa-etapa-01 .card__subtitulo a { text-decoration: underline; }
+
+/* ------------------------------------------------------------
+   LEVANTAMENTO DA ETAPA 1: RASCUNHO, MARCADORES E TABELA
+   ------------------------------------------------------------
+   A tabela rola dentro do card no celular; os campos seguem a grade responsiva
+   existente. Número e interrogação distinguem os marcadores além da cor. */
+.card-mapa-etapa-01 #ponto-formulario { margin-top: 24px; }
+.card-mapa-etapa-01 .ponto-acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.card-mapa-etapa-01 .pontos-tabela { max-width: 100%; overflow-x: auto; }
+.card-mapa-etapa-01 .pontos-tabela table { min-width: 640px; }
+.card-mapa-etapa-01 .pontos-tabela td { max-width: 300px; overflow-wrap: anywhere; }
+.card-mapa-etapa-01 .pontos-tabela .botao { margin: 3px; }
+.card-mapa-etapa-01 :focus-visible { outline: 3px solid var(--azul-800); outline-offset: 3px; }
+.card-mapa-etapa-01 .ponto-marcador { display: grid; place-items: center; border: 2px solid white; border-radius: 50%; background: var(--azul-900); color: white; font-size: 14px; font-weight: bold; box-shadow: 0 1px 5px #153b5680; }
+.card-mapa-etapa-01 .ponto-marcador--provisorio { background: #9b5100; border-style: dashed; }
+.card-mapa-etapa-01 .leaflet-popup-content { white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -90,14 +90,14 @@ function criarCardOrientacao() {
 
 // Na etapa 1, os IDs dos controles fazem a ligação com js/mapas/etapa-01-mapa.js.
 // Esse módulo carrega o Leaflet, habilita a busca por endereço e preenche as coordenadas
-// somente após a escolha manual de um ponto; os campos de latitude e longitude são de leitura.
+// após uma seleção provisória; os campos de latitude e longitude são de leitura.
 // O status comunica carregamento e erros; as demais etapas recebem um mapa ilustrativo.
 function criarMapa(rotulo) {
   if (etapa.numero === 1) {
     return `
       <article class="card card-mapa-etapa-01">
         <h2>${rotulo}</h2>
-        <p class="card__subtitulo" id="mapa-instrucao">Busque um endereço para localizar a região e clique no mapa para marcar um ponto de alagamento.</p>
+        <p class="card__subtitulo" id="mapa-instrucao">Pesquise um endereço ou clique no mapa. Confira o ponto provisório e use “Adicionar ponto de alagamento” para cadastrá-lo. Os registros representam locais de alagamento, não áreas ou bacias delimitadas.</p>
         <div class="mapa-busca">
           <div class="campo">
             <label for="mapa-endereco">ENDEREÇO</label>
@@ -107,11 +107,37 @@ function criarMapa(rotulo) {
         </div>
         <p id="mapa-mensagem" class="mapa-mensagem" role="status" aria-live="polite" aria-atomic="true">Carregando mapa…</p>
         <div id="mapa-etapa-01" class="mapa-interativo" role="region" aria-label="Mapa para localização de pontos de alagamento" aria-describedby="mapa-instrucao"></div>
+        <!-- ------------------------------------------------------------
+             RASCUNHO DO PONTO E TABELA DO LEVANTAMENTO
+             ------------------------------------------------------------
+             A seleção não cadastra registros; o módulo sincroniza mapa e tabela
+             somente após a confirmação e gravação do formulário. -->
+        <p class="card__subtitulo">Marcadores azuis numerados: pontos cadastrados. Marcador laranja com “?”: posição provisória.</p>
+        <button class="botao botao--secundario" id="mapa-selecionar-centro" type="button" disabled>Selecionar centro do mapa</button>
+        <p class="card__subtitulo">Pelo teclado, use as setas no mapa para movê-lo e depois selecione seu centro.</p>
+        <form id="ponto-formulario" novalidate>
+        <h3 id="ponto-titulo">Novo ponto de alagamento</h3>
         <div class="campos mapa-coordenadas">
+          <div class="campo campo--largo"><label for="ponto-endereco">Endereço ou referência</label><input id="ponto-endereco" type="text" required placeholder="Confira ou informe uma referência para esta posição"></div>
           <div class="campo"><label for="mapa-latitude">Latitude</label><input id="mapa-latitude" type="text" readonly placeholder="Selecione um ponto"></div>
           <div class="campo"><label for="mapa-longitude">Longitude</label><input id="mapa-longitude" type="text" readonly placeholder="Selecione um ponto"></div>
+          <div class="campo campo--largo"><label for="ponto-descricao">Descrição do problema observado (opcional)</label><textarea id="ponto-descricao"></textarea></div>
         </div>
-        <p class="card__subtitulo">Localização e marcação manual. A seleção permanece apenas enquanto esta página estiver aberta.</p>
+        <div class="ponto-acoes">
+          <button class="botao botao--primario" id="ponto-salvar" type="submit">Adicionar ponto de alagamento</button>
+          <button class="botao botao--secundario" id="ponto-cancelar" type="button">Limpar seleção</button>
+        </div>
+        </form>
+        <p id="ponto-mensagem" class="mapa-mensagem" role="status" aria-atomic="true"></p>
+        <p id="ponto-salvamento" class="mapa-mensagem" role="status" aria-atomic="true"></p>
+        <p class="card__subtitulo">Os pontos são salvos neste navegador. Limpar os dados de navegação pode apagar o levantamento.</p>
+        <h3 id="pontos-quantidade" tabindex="-1">Pontos de alagamento cadastrados</h3>
+        <div class="pontos-tabela" role="region" aria-label="Tabela de pontos de alagamento" tabindex="0">
+          <table class="tabela-prototipo">
+            <thead><tr><th scope="col">Ponto de alagamento</th><th scope="col">Endereço ou referência</th><th scope="col">Latitude</th><th scope="col">Longitude</th><th scope="col">Ações</th></tr></thead>
+            <tbody id="pontos-corpo"></tbody>
+          </table>
+        </div>
         <p class="card__subtitulo">Pesquisa: Nominatim · Dados © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">colaboradores do OpenStreetMap</a>.</p>
       </article>
     `;
@@ -177,7 +203,13 @@ function montarAreaDeTrabalho() {
   if (mapas.includes(etapa.tipoTela)) {
     // As etapas 1 e 2 possuem títulos próprios; os outros mapas compartilham um título.
     const tituloMapa = etapa.numero === 1 ? "Mapa dos pontos de alagamento" : etapa.numero === 2 ? "Bacia, relevo e caminho da água" : "Representação espacial da etapa";
-    elementos.area.innerHTML = `<div class="grade-trabalho">${criarCardOrientacao()}${criarMapa(tituloMapa)}</div>${criarFormularioPadrao()}`;
+    // ------------------------------------------------------------
+    // LEVANTAMENTO DA ETAPA 1 EM LARGURA COMPLETA
+    // ------------------------------------------------------------
+    // O formulário específico substitui o formulário genérico apenas na Etapa 1.
+    elementos.area.innerHTML = etapa.numero === 1
+      ? `${criarCardOrientacao()}${criarMapa(tituloMapa)}`
+      : `<div class="grade-trabalho">${criarCardOrientacao()}${criarMapa(tituloMapa)}</div>${criarFormularioPadrao()}`;
     // O contêiner precisa existir antes do Leaflet. As outras etapas não carregam o módulo.
     if (etapa.numero === 1) {
       import("./mapas/etapa-01-mapa.js")
