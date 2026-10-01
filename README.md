@@ -47,6 +47,73 @@ etapa.html?numero=17
 
 O arquivo `etapa.html` é reutilizado nas 17 etapas. Os textos ficam centralizados em `js/dados-etapas.js`.
 
+## Etapa 13 — Pré-dimensionamento
+
+Abra `etapa.html?numero=13` pelo Live Server. Cadastre manualmente intervenções
+para um único cenário: escolha uma das oito variantes, informe a área em m² e
+confira profundidade em metros e fração de vazios. São aceitos ponto ou vírgula
+decimal, sem separador de milhar. `0,30` significa 30% de vazios; zero é válido.
+
+Os padrões são ajustáveis. Trocar a variante aplica seus padrões, com confirmação
+se substituir valores personalizados. **Restaurar parâmetros padrão** atua apenas
+no rascunho. **Editar** recupera os valores efetivamente salvos; **Cancelar edição**
+mantém o registro anterior. A exclusão pede confirmação e não renumera os demais.
+Várias intervenções da mesma variante são independentes.
+
+O cálculo é **V = A × H × n**. A prévia não integra o total até a confirmação.
+Entradas inválidas removem a prévia e indicam os campos a corrigir. O total soma
+todas as intervenções, sem arredondamento intermediário; a exibição dos volumes
+usa duas casas decimais em pt-BR. Não são calculadas infiltração, descarga ou chuva.
+Pontos de alagamento e seleções do catálogo não viram intervenções automaticamente.
+
+Os padrões estão em `js/dados/parametros-pre-dimensionamento.js`, associados aos IDs
+do catálogo existente. Fonte informada na especificação: `SUDS-UP_Final.xlsx`, aba
+“13 - Pré-dimensionamento”, B5:D12; dissertação de Fabiana Carvalho, páginas impressas
+96–97, Etapa 13 e Tabela 18. Esses documentos não foram abertos nesta implementação.
+
+**Divergência na especificação:** uma intervenção de 100 m² de cada variante, com
+os oito padrões fornecidos, soma **533,60 m³**, e não 633,60 m³. Foram preservados
+os parâmetros e a fórmula: 45 + 45 + 36 + 13,80 + 13,80 + 140 + 140 + 100.
+
+A chave local exclusiva é `suds-up:etapa-13:cenario:v1`:
+
+```json
+{
+  "versao": 1,
+  "proximoNumero": 2,
+  "intervencoes": [{
+    "id": "UUID", "numero": 1, "variante": "jardim-permeavel",
+    "area": 100, "profundidade": 1.5, "vazios": 0.3
+  }]
+}
+```
+
+Volumes são recalculados a partir das entradas ao restaurar. Dados incompatíveis
+não são sobrescritos e falhas de gravação preservam o rascunho sem confirmar a
+alteração. A chave da Etapa 1 não é modificada. Para recuperar o cenário, use o
+mesmo navegador e a mesma origem, inclusive a porta do Live Server. Limpar os dados
+de navegação pode apagar o cenário.
+
+Conferência rápida:
+
+1. Adicione jardim de chuva com área 100 e padrões: 45,00 m³.
+2. Adicione trincheira com área 100 e padrões: 36,00 m³; total 81,00 m³.
+3. Edite o jardim para profundidade 2,00 e vazios 0,40: prévia 80,00 m³.
+   O total só muda após salvar. Cancele uma nova edição e confira o registro.
+4. Exclua uma intervenção, adicione outra e recarregue: números não se repetem.
+5. Confira erros de campos vazios/negativos e índice zero. Teste também no celular.
+
+Testes isolados deste incremento:
+
+```text
+node tests/pre-dimensionamento.test.mjs
+python -u tests/validar-pre-dimensionamento.py
+```
+
+O teste de navegador usa Playwright/Chromium já instalados e um perfil temporário.
+Não acessa cenários reais; as consultas Nominatim da regressão são simuladas.
+As etapas de chuva de projeto e comparação com demanda continuam fora desta entrega.
+
 ## Mapa interativo da Etapa 1
 
 Abra `index.html` com Live Server e selecione **Iniciar estudo**, ou acesse

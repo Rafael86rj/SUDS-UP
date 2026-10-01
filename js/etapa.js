@@ -187,6 +187,20 @@ function criarTabela(titulo) {
 // Os retornos encerram os layouts específicos antes de chegar ao layout padrão.
 function montarAreaDeTrabalho() {
   // ------------------------------------------------------------
+  // PRÉ-DIMENSIONAMENTO MANUAL DO CENÁRIO
+  // ------------------------------------------------------------
+  // Apenas a Etapa 13 carrega cálculo e persistência. O catálogo é compartilhado,
+  // sem transformar seleções de consulta ou pontos de alagamento em intervenções.
+  if (etapa.numero === 13) {
+    elementos.area.innerHTML = `${criarCardOrientacao()}<section id="pre-dimensionamento">Carregando pré-dimensionamento…</section>`;
+    import("./pre-dimensionamento-interface.js")
+      .then(modulo => modulo.iniciarPreDimensionamento(document.querySelector("#pre-dimensionamento"), TECNICAS_SUDS))
+      .catch(() => {
+        document.querySelector("#pre-dimensionamento").textContent = "Não foi possível carregar o pré-dimensionamento. Recarregue a página.";
+      });
+    return;
+  }
+  // ------------------------------------------------------------
   // INTEGRAÇÃO DO CATÁLOGO E DA CONSULTA DE RESTRIÇÕES
   // ------------------------------------------------------------
   // Mantém as orientações existentes e delega controles e regras ao módulo
@@ -225,8 +239,8 @@ function montarAreaDeTrabalho() {
     return;
   }
 
-  // Inclui as telas de cálculo apenas como tabelas de protótipo: os arquivos de
-  // js/calculos não são importados nem executados por este controlador.
+  // As demais telas de cálculo continuam como tabelas de protótipo;
+  // o pré-dimensionamento já foi tratado acima e não inicia cálculos de chuva.
   if (tabelas.includes(etapa.tipoTela)) {
     elementos.area.innerHTML = `${criarCardOrientacao()}${criarTabela(etapa.titulo)}<div class="aviso-futuro">Os campos, fórmulas e valores desta tela serão implementados na tarefa específica de cálculo ou levantamento.</div>`;
     return;

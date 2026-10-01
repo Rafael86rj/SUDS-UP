@@ -1,0 +1,31 @@
+/* ------------------------------------------------------------
+   ETAPA 13: FORMULÁRIO, RESULTADO E TABELA RESPONSIVA
+   ------------------------------------------------------------
+   Classes locais preservam os mapas e consultas. A tabela rola dentro do card
+   em telas pequenas, mantendo os controles acessíveis por teclado. */
+.pre-dimensionamento { min-width: 0; line-height: 1.6; }
+.pre-dimensionamento form { margin-block: 24px; }
+.pre-dimensionamento .campo { min-width: 0; }
+.pre-dimensionamento .campo label { font-size: 13px; }
+.pre-dimensionamento .pre-erro { color: var(--erro); }
+.pre-dimensionamento [aria-invalid="true"] { border-color: var(--erro); }
+.pre-dimensionamento .pre-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+.pre-dimensionamento .pre-resumo { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; background: var(--azul-50); padding: 16px; border-radius: var(--raio-md); }
+.pre-dimensionamento .pre-resumo strong, .pre-dimensionamento #pre-previa { min-width: 0; overflow-wrap: anywhere; }
+.pre-dimensionamento .pre-tabela { max-width: 100%; overflow-x: auto; margin-top: 20px; }
+.pre-dimensionamento table { min-width: 800px; }
+.pre-dimensionamento td { overflow-wrap: anywhere; max-width: 240px; }
+.pre-dimensionamento td .botao { margin: 3px; }
+.pre-dimensionamento :focus-visible { outline: 3px solid var(--azul-800); outline-offset: 3px; }
+.pre-dimensionamento :disabled { opacity: .6; cursor: default; }
+/* ------------------------------------------------------------
+   CONFIRMAÇÃO JUNTO AO BOTÃO DE RESTAURAÇÃO
+   ------------------------------------------------------------
+   A região permanece no DOM para anúncios acessíveis; o destaque aparece
+   somente com texto, sem mover o foco do controle acionado. */
+.pre-dimensionamento #pre-restauracao-status { margin: 8px 0 0; }
+.pre-dimensionamento #pre-restauracao-status:not(:empty) { padding: 10px 12px; border-left: 3px solid var(--azul-700); background: var(--azul-50); color: var(--azul-900); }
+@media (max-width: 780px) {
+  .pre-dimensionamento { padding: 16px; }
+  .pre-dimensionamento .campos { grid-template-columns: minmax(0, 1fr); }
+}
