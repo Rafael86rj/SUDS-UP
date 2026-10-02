@@ -112,7 +112,104 @@ python -u tests/validar-pre-dimensionamento.py
 
 O teste de navegador usa Playwright/Chromium já instalados e um perfil temporário.
 Não acessa cenários reais; as consultas Nominatim da regressão são simuladas.
-As etapas de chuva de projeto e comparação com demanda continuam fora desta entrega.
+A Etapa 15 ainda não está implementada. A comparação com uma demanda disponível
+é realizada pela Etapa 17, descrita abaixo.
+
+## Lote 1 — Etapas 4, 14, 16 e 17
+
+As quatro telas mantêm `etapa.html?numero=N`, as orientações, o menu e a navegação.
+Não foram adicionadas dependências, APIs ou cálculos de chuva.
+
+### Etapa 4 — Condicionantes iniciais
+
+Registra situação e observação/justificativa nos grupos de condicionantes urbanas
+gerais, ambientais, sanitárias e socioeconômicas. As situações são **Não avaliada**,
+**Sem restrição registrada**, **Requer atenção** e **Restrição relevante identificada**.
+São registros do projetista, sem critérios internos ou aprovação automática.
+O botão **Salvar condicionantes** confirma os dados; alterações ainda não salvas
+permanecem apenas no formulário.
+
+Chave: `suds-up:etapa-4:condicionantes:v1`. Estrutura: `{ versao: 1, grupos }`,
+com as chaves `urbanas`, `ambientais`, `sanitarias`, `socioeconomicas`; cada grupo
+contém `situacao` (um dos textos acima) e `observacao` (texto).
+
+### Etapa 14 — Dados da bacia de contribuição
+
+Os cinco campos são obrigatórios: área total e área vegetada em m², comprimento
+do talvegue e cotas máxima/mínima em metros. Aceita vírgula ou ponto decimal,
+sem separadores de milhar, usando o leitor decimal existente da Etapa 13.
+Área total e talvegue devem ser positivos; área vegetada deve ficar entre zero
+e área total. As cotas podem ser negativas, mas a máxima deve superar a mínima.
+Todos os valores devem ser números finitos. Não há cálculo hidrológico nesta tela.
+
+Chave: `suds-up:etapa-14:bacia:v1`. Estrutura:
+
+```text
+{ versao: 1, areaTotal, areaVegetada, comprimentoTalvegue, cotaMaxima, cotaMinima }
+```
+
+**Salvar dados da bacia** confirma os valores numéricos sem arredondá-los.
+**Limpar rascunho** esvazia os campos sem apagar o registro confirmado, que volta
+ao recarregar ou retornar à etapa. Os dois formulários restauram dados na mesma
+origem/navegador e preservam rascunhos em falhas de gravação. Registros incompatíveis
+bloqueiam a gravação; alterações em outra aba exigem recarregar antes de salvar.
+
+### Contrato futuro da Etapa 15 e painel da Etapa 16
+
+A Etapa 15 **não está implementada** e não recebe dados fictícios deste lote.
+Seu futuro produtor deve gravar, na chave `suds-up:etapa-15:chuva-projeto:v1`:
+
+```text
+{ versao: 1, volumeChuvaAManejar: <número finito não negativo, em m³> }
+```
+
+`volumeChuvaAManejar` deve ser um número JSON, não texto formatado. O contrato
+aceita campos extras para futura rastreabilidade. O produtor deverá manter seu
+resultado atualizado conforme as entradas; este lote não calcula nem invalida
+automaticamente uma chuva de projeto. Os exemplos de volume usados nos testes
+ficam exclusivamente em contextos isolados.
+
+A Etapa 16 apenas lê esse contrato. Sem registro, mostra **Volume ainda não
+calculado** e o link **Revisar chuva de projeto** para a Etapa 15. Dados incompatíveis
+ou armazenamento bloqueado são informados sem apresentar zero como substituto.
+Um volume válido é exibido em pt-BR com duas casas decimais; o registro não é alterado.
+
+### Etapa 17 — Avaliação do cenário
+
+A capacidade vem da chave existente `suds-up:etapa-13:cenario:v1`, validada pelo
+módulo da Etapa 13. O total é recalculado pela mesma função
+`calcularTotalIntervencoes`, ignorando eventuais volumes/total armazenados. Não há
+nova chave de capacidade nem mudança do formato da Etapa 13.
+
+Com intervenções confirmadas e demanda válida, compara os valores completos:
+capacidade ≥ demanda significa **O cenário atende à demanda.**; capacidade menor
+significa **O cenário não atende integralmente à demanda.** O percentual é
+`(capacidade / demanda) × 100`, sem limitar valores acima de 100%. Só a apresentação
+é arredondada. Se a demanda explicitamente calculada for zero, a comparação ainda
+é possível e o percentual aparece como **não se aplica**, evitando divisão por zero.
+Um percentual que exceda a faixa numérica é informado sem exibir infinito.
+
+Ausência de cenário, coleção vazia, ausência da chuva, incompatibilidade e falha
+de leitura não geram avaliação fictícia. Capacidade zero de intervenções existentes
+é distinguida de ausência de intervenções. Quando não atende, há links para as
+Etapas 9 e 13; a chuva também pode ser revisada. Quando atende, **Finalizar cenário**
+confirma apenas a visualização atual: não persiste outra avaliação, não cria projetos
+e não gera PDF. Alterações em outra aba atualizam os painéis e removem a finalização
+visual anterior. As demais etapas fora do escopo mantêm seu estado atual de protótipo.
+
+### Testes do Lote 1
+
+```text
+node tests/lote-1.test.mjs
+python -u tests/validar-lote-1.py
+```
+
+O teste de navegador requer o Playwright/Chromium já utilizado pelo projeto;
+usa origem e contexto isolados. Cobre salvamento/restauração, erros, textos seguros,
+painéis com e sem resultados, comparação e layouts de desktop, tablet e celular.
+As regressões existentes continuam em `tests/validar-pontos.py`,
+`tests/pre-dimensionamento.test.mjs`, `tests/validar-pre-dimensionamento.py`
+e `tests/validar-tecnicas.py`.
 
 ## Mapa interativo da Etapa 1
 

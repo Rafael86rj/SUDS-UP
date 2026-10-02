@@ -1,0 +1,29 @@
+/* ------------------------------------------------------------
+   FORMULÁRIOS E RESULTADOS DAS ETAPAS 4, 14, 16 E 17
+   ------------------------------------------------------------
+   Reutiliza as cores, cards, campos e botões existentes. Grades se adaptam
+   à largura disponível, inclusive números longos e observações extensas. */
+.lote-1 { min-width: 0; line-height: 1.6; overflow-wrap: anywhere; }
+.lote-1 .lote-grade { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.lote-1 fieldset { min-width: 0; border: 1px solid var(--borda); border-radius: var(--raio-md); margin: 0 0 16px; padding: 16px; }
+.lote-1 legend { font-weight: 700; padding-inline: 6px; }
+.lote-1 .campo { min-width: 0; margin-block: 10px; }
+.lote-1 .campo label { font-size: 13px; }
+.lote-1 .lote-erro { color: var(--erro); }
+.lote-1 [aria-invalid="true"] { border-color: var(--erro); }
+.lote-1 .lote-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.lote-1 .lote-metricas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.lote-1 .lote-metricas > div, .lote-1 .lote-resultado { min-width: 0; padding: 18px; border-radius: var(--raio-md); background: var(--azul-50); border: 1px solid var(--borda); }
+.lote-1 dt { color: var(--texto-secundario); font-size: 13px; }
+.lote-1 dd { margin: 10px 0 0; font-size: 22px; font-weight: 700; }
+.lote-1 .lote-volume { padding: 20px; background: var(--azul-50); border-radius: var(--raio-md); font-size: clamp(24px, 4vw, 40px); font-weight: 700; }
+.lote-1 :focus-visible { outline: 3px solid var(--azul-800); outline-offset: 3px; }
+.lote-1 button:disabled { opacity: .65; cursor: default; }
+@media (max-width: 1050px) {
+  .lote-1 .lote-metricas { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 780px) {
+  .lote-1 { padding: 16px; }
+  .lote-1 .lote-grade { grid-template-columns: minmax(0, 1fr); }
+  .lote-1 .lote-acoes .botao { width: 100%; }
+}

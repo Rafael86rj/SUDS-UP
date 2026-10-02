@@ -187,9 +187,25 @@ function criarTabela(titulo) {
 // Os retornos encerram os layouts específicos antes de chegar ao layout padrão.
 function montarAreaDeTrabalho() {
   // ------------------------------------------------------------
+  // FORMULÁRIOS E RESULTADOS DO LOTE 1
+  // ------------------------------------------------------------
+  // Mantém orientações, navegação e metadados comuns. Os módulos específicos
+  // substituem apenas os conteúdos genéricos das quatro etapas autorizadas.
+  if ([4, 14, 16, 17].includes(etapa.numero)) {
+    elementos.area.innerHTML = `${criarCardOrientacao()}<section id="lote-1-conteudo" role="region" aria-label="Área de trabalho da etapa">Carregando etapa…</section>`;
+    const container = document.querySelector("#lote-1-conteudo");
+    const carregar = etapa.numero === 4
+      ? import("./condicionantes-interface.js").then(modulo => modulo.iniciarCondicionantes(container))
+      : etapa.numero === 14
+        ? import("./bacia-interface.js").then(modulo => modulo.iniciarBacia(container))
+        : import("./resultados-interface.js").then(modulo => modulo.iniciarResultados(container, etapa.numero, TECNICAS_SUDS));
+    carregar.catch(() => { container.textContent = "Não foi possível carregar esta etapa. Recarregue a página."; });
+    return;
+  }
+  // ------------------------------------------------------------
   // PRÉ-DIMENSIONAMENTO MANUAL DO CENÁRIO
   // ------------------------------------------------------------
-  // Apenas a Etapa 13 carrega cálculo e persistência. O catálogo é compartilhado,
+  // A Etapa 13 gerencia intervenções e seus cálculos. O catálogo é compartilhado,
   // sem transformar seleções de consulta ou pontos de alagamento em intervenções.
   if (etapa.numero === 13) {
     elementos.area.innerHTML = `${criarCardOrientacao()}<section id="pre-dimensionamento">Carregando pré-dimensionamento…</section>`;
@@ -266,7 +282,7 @@ function configurarNavegacao() {
 
   if (etapa.numero === TOTAL_ETAPAS) {
     elementos.proxima.href = "index.html";
-    elementos.proxima.textContent = "Finalizar protótipo";
+    elementos.proxima.textContent = "Encerrar navegação";
   } else {
     elementos.proxima.href = `etapa.html?numero=${etapa.numero + 1}`;
   }

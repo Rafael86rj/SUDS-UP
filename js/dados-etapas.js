@@ -42,11 +42,11 @@ const ETAPAS = [
   {
     numero: 4,
     grupo: "Seleção de técnicas",
-    titulo: "Condicionantes sanitárias e sociais",
+    titulo: "Condicionantes iniciais",
     menu: "Condicionantes iniciais",
-    descricao: "Consulte as condições sanitárias e sociais que influenciam a implantação das técnicas.",
-    objetivo: "Eliminar alternativas incompatíveis antes das análises físicas e urbanas.",
-    passos: ["Selecionar a condição observada", "Consultar a orientação associada", "Registrar restrições relevantes"],
+    descricao: "Registre a análise preliminar das condicionantes urbanas, ambientais, sanitárias e socioeconômicas.",
+    objetivo: "Documentar a análise do projetista e as justificativas que poderão influenciar a implantação das técnicas.",
+    passos: ["Revisar os quatro grupos de condicionantes", "Informar a situação e a justificativa da análise", "Salvar condicionantes"],
     resultado: "Conjunto de condicionantes iniciais associado ao estudo.",
     tipoTela: "consulta"
   },
@@ -178,8 +178,8 @@ const ETAPAS = [
     menu: "Volume a manejar",
     descricao: "Revise o volume calculado e os parâmetros que determinaram a demanda do cenário.",
     objetivo: "Apresentar a demanda hidrológica de forma clara antes da comparação final.",
-    passos: ["Revisar entradas", "Confirmar unidades", "Aceitar o volume calculado"],
-    resultado: "Volume de referência confirmado para avaliação do cenário.",
+    passos: ["Consultar o volume disponível da Etapa 15", "Conferir a unidade em metros cúbicos", "Revisar a chuva de projeto quando necessário"],
+    resultado: "Volume de referência apresentado para avaliação do cenário, quando disponível.",
     tipoTela: "resumo-volume"
   },
   {
@@ -189,8 +189,8 @@ const ETAPAS = [
     menu: "Resultado do cenário",
     descricao: "Compare a capacidade total das técnicas com o volume de chuva que precisa ser manejado.",
     objetivo: "Decidir se o cenário atende à demanda ou se precisa de novas técnicas e ajustes.",
-    passos: ["Comparar os volumes", "Responder se a demanda foi atendida", "Finalizar ou criar nova iteração"],
-    resultado: "Decisão final do cenário e resumo preparado para exportação.",
+    passos: ["Conferir capacidade e demanda confirmadas", "Consultar o percentual e o resultado da comparação", "Revisar as intervenções ou finalizar a visualização do cenário"],
+    resultado: "Comparação dos volumes do cenário, com indicação das revisões necessárias ou finalização visual.",
     tipoTela: "resultado"
   }
 ];
