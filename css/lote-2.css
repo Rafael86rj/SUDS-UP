@@ -1,0 +1,54 @@
+/* ------------------------------------------------------------
+   SUDS-UP — METADADOS DO ARQUIVO
+   Arquivo: css/lote-2.css
+   Módulo: Etapas 8, 10 e 11 — apresentação
+   Objetivo: Formulários, seleções e resumos legíveis inclusive em 390 px.
+   Responsabilidade: Estilos locais, sem alterar outras etapas.
+   Dependências: variables.css, style.css e responsive.css existentes.
+   Utilizado por: etapa.html e interfaces do Lote 2.
+   Criado em: 03/10/2026
+   Última revisão: 03/10/2026
+   ------------------------------------------------------------ */
+
+/* Escopo local evita que campos e resumos do lote modifiquem os demais módulos. */
+.lote-2 { min-width: 0; line-height: 1.6; overflow-wrap: anywhere; }
+.lote-2 fieldset { min-width: 0; margin-block: 16px; padding: 16px; border: 1px solid var(--borda); border-radius: var(--raio-md); }
+.lote-2 legend { padding-inline: 6px; font-weight: 700; }
+.lote-2 .campo { min-width: 0; margin-block: 10px; }
+.lote-2 .campo label { font-size: 13px; }
+.lote-2 .campo input, .lote-2 .campo select, .lote-2 .campo textarea { min-width: 0; max-width: 100%; }
+.lote-2 .lote2-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-block: 20px; }
+.lote-2 a { color: var(--azul-800); text-decoration: underline; }
+
+/* Checkboxes nativos permitem seleção múltipla por teclado sem atalhos especiais. */
+.lote-2 .lote2-opcao { padding: 12px 0; border-bottom: 1px solid var(--borda); }
+.lote-2 .lote2-opcao label { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; cursor: pointer; }
+.lote-2 .lote2-opcao input { flex: 0 0 20px; width: 20px; height: 20px; margin-top: 4px; accent-color: var(--azul-800); }
+.lote-2 .lote2-opcao a { display: inline-block; font-size: 12px; padding-block: 8px; }
+
+/* Cards e listas de definição evitam uma tabela larga em celular. */
+.lote-2 .lote2-lista { display: grid; gap: 18px; }
+.lote-2 .lote2-registro, .lote-2 .lote2-resumo { min-width: 0; margin-block: 16px; padding: 16px; border: 1px solid var(--borda); border-radius: var(--raio-md); }
+.lote-2 .lote2-resumo { background: var(--azul-50); }
+.lote-2 .lote2-resumo dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lote-2 dt { font-weight: 700; font-size: 13px; }
+.lote-2 dd { margin: 4px 0 0; white-space: pre-wrap; }
+.lote-2 summary { cursor: pointer; padding-block: 10px; }
+
+/* Erros têm mensagem textual e foco; cor é apenas um reforço visual. */
+.lote-2 .lote2-erro { color: var(--erro); }
+.lote-2 [aria-invalid="true"] { border: 2px solid var(--erro); }
+.lote-2 .lote2-status { min-height: 1.6em; font-weight: 600; }
+.lote-2 .lote2-aviso { padding: 12px; border: 1px solid var(--borda); }
+.lote-2 :focus-visible { outline: 3px solid var(--azul-800); outline-offset: 3px; }
+.lote-2 h3 { margin-top: 24px; }
+
+/* A largura útil do tablet também considera o espaço ocupado pela sidebar. */
+@media (max-width: 1050px) {
+  .lote-2 .campos, .lote-2 .lote2-resumo dl { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 780px) {
+  .lote-2 { padding: 16px; }
+  .lote-2 fieldset, .lote-2 .lote2-resumo { padding: 12px; }
+  .lote-2 .lote2-acoes .botao { width: 100%; }
+}

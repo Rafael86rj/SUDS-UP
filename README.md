@@ -211,6 +211,153 @@ As regressões existentes continuam em `tests/validar-pontos.py`,
 `tests/pre-dimensionamento.test.mjs`, `tests/validar-pre-dimensionamento.py`
 e `tests/validar-tecnicas.py`.
 
+## Lote 2 — Pré-campo, visita e decisão por área
+
+As Etapas **8 → 10 → 11** utilizam `etapa.html` e o catálogo existente
+`TECNICAS_SUDS`. Não há recomendação automática: as alternativas e a escolha
+final pertencem ao projetista. Os dados confirmados são recuperados ao recarregar
+ou navegar na mesma origem (protocolo, domínio e porta). Rascunhos não são salvos
+automaticamente, e não existem mapas, uploads ou exportação PDF neste lote.
+
+### Etapa 8 — Possibilidades preliminares
+
+Cadastre manualmente cada área candidata, com identificação e área disponível
+obrigatórias. Dimensões, declividade, distâncias e área de contribuição são
+opcionais; vazio é `null`, diferente de zero. Largura/comprimento preenchidos
+devem ser positivos; declividade/distâncias/contribuição aceitam zero. A leitura
+decimal reutiliza o leitor estrito da Etapa 13, aceitando vírgula ou ponto, sem
+separadores de milhar nem sufixos inválidos. Nenhum cálculo da Etapa 13 foi alterado.
+
+Permeabilidade, uso do solo, interferências, restrições e observações são textos
+livres. As possibilidades são seleções múltiplas de variantes reais do catálogo,
+com links contextuais para as restrições da Etapa 7. Não são aplicados critérios
+técnicos de viabilidade nem categorias de solo automáticas.
+
+**Adicionar área**, **Editar**, **Salvar alterações** e **Excluir** confirmam as
+operações na chave `suds-up:etapa-8:possibilidades:v1`. Limpar/cancelar afeta apenas
+o rascunho. A exclusão exige confirmação e não renumera as demais áreas.
+
+```json
+{
+  "versao": 1,
+  "proximoNumero": 2,
+  "areas": [{
+    "id": "UUID", "numero": 1,
+    "identificacao": "Área candidata", "areaDisponivel": 100.25,
+    "largura": null, "comprimento": null, "declividade": null,
+    "permeabilidade": "", "distanciaLencol": null,
+    "distanciaRocha": null, "distanciaFundacoes": null,
+    "usoSolo": "", "redeAgua": "", "redeEsgoto": "", "drenagem": "",
+    "postes": "", "metro": "", "outrasInterferencias": "",
+    "areaContribuicao": null, "restricoes": "",
+    "possiveis": ["bacia-permeavel", "jardim-permeavel"], "observacoes": ""
+  }]
+}
+```
+
+O ID interno permanece estável em edições. `proximoNumero` é um inteiro seguro
+crescente e não volta após exclusões. Os números não são usados como vínculo.
+`possiveis` contém IDs únicos de variantes, que também identificam sua técnica
+no catálogo original. Os nomes são resolvidos na apresentação, sem segundo catálogo.
+
+### Etapa 10 — Registro da visita de campo
+
+A tela lê exclusivamente as áreas confirmadas na Etapa 8 e apresenta o resumo
+pré-campo. Não permite criar áreas. Sem áreas, informa o estado vazio e oferece
+retorno à Etapa 8. Cada área pode ter uma única vistoria atual: salvar novamente
+atualiza o mesmo vínculo, sem duplicar registros.
+
+Postes, poços de visita e pavimentação histórica admitem exatamente `Não avaliado`,
+`Sim` e `Não`. Fluxo de pedestres e observações são textos livres. Largura útil
+da calçada é opcional, finita e maior ou igual a zero quando preenchida.
+
+Chave: `suds-up:etapa-10:visita-campo:v1`.
+
+```json
+{
+  "versao": 1,
+  "vistorias": [{
+    "areaId": "UUID",
+    "postes": "Não avaliado", "pocosVisita": "Não avaliado",
+    "pavimentacaoHistorica": "Não avaliado", "fluxoPedestres": "",
+    "larguraCalcada": null, "observacoes": ""
+  }]
+}
+```
+
+### Etapa 11 — Revisão pós-campo e escolha do SUDS
+
+Três blocos distinguem os dados pré-campo, a visita de campo e a decisão editável.
+A ausência de vistoria é informada; não impede registrar uma decisão. Os dados
+das Etapas 8 e 10 aparecem como resumos completos, sem redigitação ou alteração
+silenciosa, com links para revisar as fontes.
+
+Na primeira revisão de uma área, as possibilidades preliminares preenchem apenas
+o rascunho revisado. Nenhuma técnica final é selecionada automaticamente. Uma
+decisão já confirmada restaura suas próprias alternativas, mesmo que o pré-campo
+tenha sido editado posteriormente.
+
+Chave: `suds-up:etapa-11:revisao-campo:v1`.
+
+```json
+{
+  "versao": 1,
+  "decisoes": [{
+    "areaId": "UUID", "restricaoProjetual": "",
+    "possiveis": ["jardim-permeavel"], "selecionado": null,
+    "motivo": "", "observacoes": ""
+  }]
+}
+```
+
+`possiveis` contém variantes revisadas. `selecionado` é `null` ou um ID pertencente
+a esse conjunto. Quando preenchido, exige `motivo` não vazio. Remover uma variante
+dos possíveis não apaga silenciosamente a escolha final: o formulário solicita
+correção ao salvar. A ausência de escolha final é válida.
+
+### Preservação dos dados e arquitetura
+
+`js/dados/lote-2.js` concentra contratos, validações e operações imutáveis.
+`js/dados/armazenamento-lote-2.js` reutiliza a leitura defensiva do Lote 1 e
+verifica também as fontes antes de salvar: 10 depende de 8; 11 depende de 8 e 10.
+Falhas de leitura, JSON inválido ou versão incompatível bloqueiam a sobrescrita.
+Falhas de gravação preservam o rascunho e os registros confirmados. Alterações
+em outra aba exibem aviso e exigem recarregar antes de salvar. A comparação
+otimista segue o padrão existente; localStorage não oferece transações entre abas.
+
+Excluir uma área na Etapa 8 **não exclui** suas vistorias ou decisões. Registros
+órfãos permanecem no armazenamento, com avisos por tipo e quantidade, sem exibir IDs nas telas seguintes. Salvar
+outro registro mantém os órfãos. Não há ferramenta de migração, exclusão de órfãos
+ou recuperação automática de dados incompatíveis neste lote.
+
+As três interfaces compartilham apenas componentes DOM em `js/lote-2-interface.js`,
+além dos dados/persistência. Textos livres entram por `textContent`/`value`.
+`css/lote-2.css` limita estilos a `.lote-2`; cards e resumos substituem tabelas
+largas. Controles nativos, labels, fieldsets, erros associados, foco no primeiro
+campo inválido e regiões de status permitem operação por teclado.
+
+### Integrações futuras e limites
+
+O cadastro manual permanece enquanto a Etapa 6 não produzir áreas estruturadas.
+Os IDs estáveis permitem futura integração **6 → 8**, leitura das possibilidades
+em **8 → 9** e consumo das decisões em **11 → 12**. Nenhuma dessas integrações foi
+implementada, nem foram modificados os cálculos ou o contrato da Etapa 13.
+As Etapas 2, 5, 6, 9, 12 e 15 mantêm o comportamento anterior.
+
+### Testes do Lote 2
+
+```text
+node tests/lote-2.test.mjs
+python -u tests/validar-lote-2.py
+```
+
+O teste de lógica verifica entradas, catálogo, CRUD, vínculos, órfãos e persistência
+isolada. O teste de navegador usa Playwright/Chromium já instalados e uma origem
+temporária: percorre o fluxo completo em 1440, 900 e 390 px, valida restauração,
+teclado, segurança textual, console, JSON incompatível, falhas e concorrência.
+Não acessa registros reais do usuário. As suítes anteriores do Lote 1,
+pré-dimensionamento, pontos e técnicas continuam como regressões do projeto.
+
 ## Mapa interativo da Etapa 1
 
 Abra `index.html` com Live Server e selecione **Iniciar estudo**, ou acesse

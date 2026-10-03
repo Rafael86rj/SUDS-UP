@@ -88,10 +88,11 @@ const ETAPAS = [
     grupo: "Avaliação em campo",
     titulo: "Possibilidades de SUDS por área",
     menu: "Possibilidades por área",
-    descricao: "Preencha as condições físico-urbanas das áreas selecionadas e associe técnicas possíveis.",
-    objetivo: "Preparar a ficha que será conferida durante a visita de campo.",
-    passos: ["Cadastrar a área", "Preencher dimensões, solo e infraestrutura", "Selecionar e justificar a técnica"],
-    resultado: "Tabela de possibilidades pronta para salvar, imprimir ou levar a campo.",
+    // Revisão 03/10/2026: possibilidades preliminares, sem escolha automática/final.
+    descricao: "Cadastre as áreas candidatas e registre as condições e possibilidades preliminares antes da visita de campo.",
+    objetivo: "Preparar um levantamento por área para conferência em campo, com alternativas indicadas pelo projetista.",
+    passos: ["Identificar a área e informar a área disponível", "Registrar dimensões, solo, infraestrutura e restrições conhecidas", "Marcar os SUDS preliminarmente possíveis e salvar a área"],
+    resultado: "Áreas e possibilidades preliminares salvas neste navegador para a visita de campo.",
     tipoTela: "tabela-campo"
   },
   {
@@ -108,23 +109,25 @@ const ETAPAS = [
   {
     numero: 10,
     grupo: "Avaliação em campo",
-    titulo: "Preparação da visita de campo",
-    menu: "Preparar visita",
-    descricao: "Organize o roteiro, as fichas e os elementos que precisam ser verificados presencialmente.",
-    objetivo: "Evitar uma visita incompleta e padronizar o levantamento.",
-    passos: ["Gerar a ficha de campo", "Definir o roteiro", "Preparar registros fotográficos e observações"],
-    resultado: "Roteiro e ficha de visita prontos para uso.",
+    // Revisão 03/10/2026: esta etapa registra a visita, não prepara exportações.
+    titulo: "Visita de campo",
+    menu: "Visita de campo",
+    descricao: "Registre as constatações in loco para as áreas cadastradas na Etapa 8.",
+    objetivo: "Documentar postes, poços de visita, pavimentação histórica, pedestres, calçada e observações de campo.",
+    passos: ["Selecionar uma área e conferir o levantamento preliminar", "Registrar as constatações realizadas no local", "Salvar a vistoria vinculada à área"],
+    resultado: "Uma vistoria atual por área, salva neste navegador para revisão pós-campo.",
     tipoTela: "visita"
   },
   {
     numero: 11,
     grupo: "Avaliação em campo",
-    titulo: "Atualização após a visita de campo",
-    menu: "Atualizar levantamento",
-    descricao: "Atualize a tabela de possibilidades com as constatações realizadas no local.",
-    objetivo: "Transformar o levantamento preliminar em uma base confirmada.",
-    passos: ["Revisar cada área", "Registrar divergências", "Confirmar ou substituir as técnicas"],
-    resultado: "Tabela físico-urbana atualizada e validada em campo.",
+    // Revisão 03/10/2026: decisão própria, preservando os registros das fontes.
+    titulo: "Revisão pós-campo e escolha do SUDS",
+    menu: "Revisão pós-campo",
+    descricao: "Consolide os dados preliminares e de campo, revise as possibilidades e registre a escolha final do projetista.",
+    objetivo: "Documentar a decisão pós-campo por área sem alterar os levantamentos das Etapas 8 e 10.",
+    passos: ["Conferir os dados pré-campo e a vistoria disponível", "Revisar restrições e SUDS possíveis", "Selecionar um SUDS e justificar, ou manter a escolha vazia, e salvar"],
+    resultado: "Decisão pós-campo salva por área, com seleção final opcional e justificativa quando houver escolha.",
     tipoTela: "tabela-revisao"
   },
   {

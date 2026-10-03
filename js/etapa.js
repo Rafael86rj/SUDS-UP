@@ -185,7 +185,19 @@ function criarTabela(titulo) {
 // ------------------------------------------------------------
 // tipoTela, definido em js/dados-etapas.js, determina quais cards serão combinados.
 // Os retornos encerram os layouts específicos antes de chegar ao layout padrão.
+/**
+ * Compõe a área de trabalho preservando a navegação comum das 17 etapas.
+ * Revisão 03/10/2026: delega somente as Etapas 8, 10 e 11 aos módulos do Lote 2.
+ * @returns {void} Atualiza DOM e inicia módulos específicos; não grava dados.
+ */
 function montarAreaDeTrabalho() {
+  // O carregamento específico substitui o placeholder e mantém o mesmo card
+  // de orientação. As outras etapas continuam em seus ramos já existentes.
+  if ([8, 10, 11].includes(etapa.numero)) {
+    elementos.area.innerHTML = `${criarCardOrientacao()}<section id="lote-2-conteudo" role="region" aria-label="Levantamento e decisão por área">Carregando etapa…</section>`;
+    carregarLote2(document.querySelector("#lote-2-conteudo"), etapa.numero);
+    return;
+  }
   // ------------------------------------------------------------
   // FORMULÁRIOS E RESULTADOS DO LOTE 1
   // ------------------------------------------------------------
@@ -326,6 +338,35 @@ function abrirModal() {
 function fecharModal() {
   elementos.modal.hidden = true;
   document.body.classList.remove("modal-aberto");
+}
+
+// ------------------------------------------------------------
+// CARREGAMENTO ISOLADO DAS ETAPAS DO LOTE 2
+// ------------------------------------------------------------
+/**
+ * Importa apenas a interface solicitada e reutiliza o catálogo já carregado.
+ * Revisão 03/10/2026: nenhuma etapa vizinha recebe código ou persistência nova.
+ * @param {Element} container Região que substituirá o placeholder.
+ * @param {number} numero Etapa 8, 10 ou 11.
+ * @returns {Promise<void>} Atualiza DOM; falha de carregamento vira aviso textual.
+ */
+async function carregarLote2(container, numero) {
+  try {
+    // Imports locais mantêm a aplicação estática, sem bibliotecas adicionais.
+    if (numero === 8) {
+      const modulo = await import("./possibilidades-interface.js");
+      modulo.iniciarPossibilidades(container, TECNICAS_SUDS);
+    } else if (numero === 10) {
+      const modulo = await import("./visita-campo-interface.js");
+      modulo.iniciarVisitaCampo(container, TECNICAS_SUDS);
+    } else {
+      const modulo = await import("./revisao-campo-interface.js");
+      modulo.iniciarRevisaoCampo(container, TECNICAS_SUDS);
+    }
+  } catch {
+    // Não há tentativa de reparar ou substituir registros quando a tela falha.
+    container.textContent = "Não foi possível carregar esta etapa. Recarregue a página.";
+  }
 }
 
 // ------------------------------------------------------------
