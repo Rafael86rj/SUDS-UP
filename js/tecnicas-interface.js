@@ -3,11 +3,20 @@
 // ------------------------------------------------------------
 // etapa.js fornece um contêiner exclusivo após manter o card de orientações.
 // As duas telas usam o mesmo cadastro; textos de dados entram via textContent.
+/** @param {Element} container Região da consulta. @param {number} numero Etapa 3 ou 7. @returns {void} Monta interface sem gravar decisões do estudo. */
 function iniciarConsultaTecnicas(container, numero) {
   const catalogo = numero === 3;
   const parametrosConsulta = new URLSearchParams(window.location.search);
-  let tecnica = TECNICAS_SUDS.find(item => item.id === parametrosConsulta.get("tecnica")) || TECNICAS_SUDS[0];
-  let variante = tecnica.variantes.find(item => item.id === parametrosConsulta.get("variante")) || tecnica.variantes[0];
+  // A URL tem prioridade. Somente o catálogo restaura sua consulta da sessão;
+  // a Etapa 7 sem contexto nunca herda uma técnica nem lê dados de domínio.
+  const chaveConsulta = "suds-up:interface:catalogo:consulta:v1";
+  let contexto = { tecnica: parametrosConsulta.get("tecnica"), variante: parametrosConsulta.get("variante") };
+  if (catalogo && !parametrosConsulta.has("tecnica") && !parametrosConsulta.has("variante")) {
+    try { contexto = JSON.parse(sessionStorage.getItem(chaveConsulta)) || contexto; }
+    catch { /* Sessão bloqueada ou inválida não impede a consulta nem os links. */ }
+  }
+  let tecnica = TECNICAS_SUDS.find(item => item.id === contexto?.tecnica) || (catalogo ? TECNICAS_SUDS[0] : null);
+  let variante = tecnica ? tecnica.variantes.find(item => item.id === contexto?.variante) || tecnica.variantes[0] : null;
 
   container.className = "card consulta-tecnicas";
   container.innerHTML = `
@@ -23,8 +32,20 @@ function iniciarConsultaTecnicas(container, numero) {
   const seletorTecnica = container.querySelector("#consulta-tecnica");
   const seletorVariante = container.querySelector("#consulta-variante");
   const detalhes = container.querySelector("#consulta-detalhes");
+  if (!catalogo) seletorTecnica.add(new Option("Selecione uma técnica", ""));
   TECNICAS_SUDS.forEach(item => seletorTecnica.add(new Option(item.nome, item.id)));
-  seletorTecnica.value = tecnica.id;
+  seletorTecnica.value = tecnica?.id || "";
+  const voltarCatalogo = catalogo ? null : adicionarTexto(container, "a", "← Voltar ao catálogo na Etapa 3", "botao botao--secundario");
+
+  // ------------------------------------------------------------
+  // MEMÓRIA DE CONSULTA EXCLUSIVA DO CATÁLOGO
+  // ------------------------------------------------------------
+  /** @returns {void} Guarda apenas IDs de interface na sessão; nunca escreve localStorage. */
+  function lembrarConsulta() {
+    if (!catalogo || !tecnica || !variante) return;
+    try { sessionStorage.setItem(chaveConsulta, JSON.stringify({ tecnica: tecnica.id, variante: variante.id })); }
+    catch { /* Sem armazenamento, a navegação contextual ainda funciona pela URL. */ }
+  }
 
   function adicionarTexto(pai, tag, texto, classe) {
     const elemento = document.createElement(tag);
@@ -34,8 +55,16 @@ function iniciarConsultaTecnicas(container, numero) {
     return elemento;
   }
 
+  // ------------------------------------------------------------
+  // VARIANTES DA TÉCNICA EXPLICITAMENTE CONSULTADA
+  // ------------------------------------------------------------
+  /** @returns {void} Atualiza opções; sem técnica, mantém o seletor vazio e desabilitado. */
   function preencherVariantes() {
     seletorVariante.replaceChildren();
+    if (!tecnica) {
+      seletorVariante.disabled = true;
+      return;
+    }
     tecnica.variantes.forEach(item => seletorVariante.add(new Option(item.nome, item.id)));
     seletorVariante.value = variante.id;
     // Um único registro continua legível, sem sugerir variantes ausentes na fonte.
@@ -93,10 +122,24 @@ function iniciarConsultaTecnicas(container, numero) {
     detalhes.append(secao);
   }
 
+  // ------------------------------------------------------------
+  // RESULTADO DA CONSULTA E CONTEXTO DE RETORNO
+  // ------------------------------------------------------------
+  /** @returns {void} Atualiza prancha/regras e link contextual, sem selecionar SUDS para áreas. */
   function renderizarDetalhes() {
     // Substituir todo o resultado atualiza prancha, alt, ampliação e regras nas
     // duas etapas, sem duplicar imagens ou manter critérios da seleção anterior.
     detalhes.replaceChildren();
+    if (voltarCatalogo) {
+      const contextoVolta = tecnica && variante ? { tecnica: tecnica.id, variante: variante.id } : {};
+      voltarCatalogo.href = `etapa.html?${new URLSearchParams({ numero: "3", ...contextoVolta })}`;
+    }
+    if (!tecnica || !variante) {
+      container.querySelector("#consulta-regime").textContent = "";
+      adicionarTexto(detalhes, "p", "Selecione uma técnica para consultar suas restrições e variantes.");
+      return;
+    }
+    lembrarConsulta();
     container.querySelector("#consulta-regime").textContent = `${variante.infiltracao ? "Com" : "Sem"} infiltração${tecnica.variantes.length === 1 ? " — única variante cadastrada nesta fonte." : "."}`;
     adicionarTexto(detalhes, "h3", `${tecnica.nome} — ${variante.nome}`);
     renderizarPrancha();
@@ -115,10 +158,10 @@ function iniciarConsultaTecnicas(container, numero) {
   // EVENTOS DE SELEÇÃO
   // ------------------------------------------------------------
   // Controles nativos oferecem navegação por teclado. A troca de técnica começa
-  // pela primeira variante válida; parâmetros desconhecidos também usam esse padrão.
+  // pela primeira variante válida. Sem técnica na Etapa 7, não há variante padrão.
   seletorTecnica.addEventListener("change", () => {
     tecnica = TECNICAS_SUDS.find(item => item.id === seletorTecnica.value);
-    variante = tecnica.variantes[0];
+    variante = tecnica ? tecnica.variantes[0] : null;
     preencherVariantes();
     renderizarDetalhes();
   });

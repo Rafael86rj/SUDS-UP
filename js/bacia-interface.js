@@ -1,11 +1,18 @@
 import { CHAVE_BACIA, CAMPOS_BACIA, lerCamposBacia, errosBacia, validarBacia } from "./dados/lote-1.js";
 import { abrirRegistro } from "./dados/armazenamento-lote-1.js";
+import { integrarBaciaDelimitada } from "./lote-3-integracoes.js";
 
 // ------------------------------------------------------------
 // ETAPA 14: ENTRADAS FÍSICAS, VALIDAÇÃO LOCAL E CONFIRMAÇÃO
 // ------------------------------------------------------------
 // Nenhum cálculo de chuva é iniciado. Limpar afeta apenas o formulário;
 // os dados confirmados reaparecem ao recarregar ou retornar à etapa.
+/**
+ * Monta entradas físicas e confirmação da Etapa 14.
+ * Revisão 04/10/2026: permite copiar a área da Etapa 2 somente para o rascunho.
+ * @param {Element} container Região de trabalho.
+ * @returns {void} Atualiza DOM; persiste Etapa 14 apenas no envio explícito.
+ */
 export function iniciarBacia(container) {
   const armazenamento = abrirRegistro(CHAVE_BACIA, validarBacia);
   container.className = "card lote-1";
@@ -35,6 +42,9 @@ export function iniciarBacia(container) {
     return { dados, erros };
   }
   const formulario = campo("formulario");
+  // A integração relê os vértices e preenche só áreaTotal por ação do projetista.
+  // O evento input reutiliza a validação abaixo; não salva nem modifica outros campos.
+  integrarBaciaDelimitada(formulario, campo("areaTotal"));
   formulario.addEventListener("submit", evento => {
     evento.preventDefault();
     const { dados, erros } = validarFormulario();

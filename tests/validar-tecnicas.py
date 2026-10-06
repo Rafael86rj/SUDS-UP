@@ -12,7 +12,81 @@ import shutil
 from threading import Thread
 from urllib.parse import quote
 from urllib.request import urlopen
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
+
+
+# ------------------------------------------------------------
+# CONSULTA, CONTEXTO DE NAVEGAÇÃO E ISOLAMENTO DO ESTUDO
+# ------------------------------------------------------------
+def validar_navegacao(browser, base):
+    """Confere ida/volta, memória por sessão e ausência de escrita em dados do estudo."""
+    for largura in [1440, 390]:
+        contexto = browser.new_context(viewport={'width': largura, 'height': 900})
+        pagina = contexto.new_page()
+        erros = []
+        pagina.on('pageerror', lambda erro: erros.append(str(erro)))
+        pagina.goto(f'{base}?numero=7')
+        expect(pagina.locator('#consulta-tecnica')).to_have_value('')
+        expect(pagina.locator('#consulta-variante')).to_be_disabled()
+        assert pagina.locator('#consulta-variante option, #consulta-detalhes img, [data-regra]').count() == 0
+        # Sentinelas preexistentes: até uma fonte incompatível deve ser preservada
+        # integralmente por telas que consultam somente o catálogo, não o estudo.
+        fontes = {f'suds-up:etapa-{etapa}:{nome}:v1': f'preservar-{etapa}' for etapa, nome in
+                  [(8, 'possibilidades'), (11, 'revisao-campo'), (13, 'cenario')]}
+        pagina.evaluate('(dados) => Object.entries(dados).forEach(([k,v]) => localStorage.setItem(k,v))', fontes)
+        pagina.goto(f'{base}?numero=3')
+        pagina.select_option('#consulta-tecnica', 'jardim-chuva')
+        pagina.select_option('#consulta-variante', 'jardim-impermeavel')
+        pagina.locator('#consulta-detalhes > a').click()
+        expect(pagina.locator('#consulta-tecnica')).to_have_value('jardim-chuva')
+        expect(pagina.locator('#consulta-variante')).to_have_value('jardim-impermeavel')
+        pagina.select_option('#consulta-tecnica', 'pavimentos-permeaveis')
+        pagina.select_option('#consulta-variante', 'pavimento-com-fundo-impermeavel')
+        voltar = pagina.get_by_role('link', name='← Voltar ao catálogo na Etapa 3', exact=True)
+        voltar.focus()
+        pagina.keyboard.press('Enter')
+        expect(pagina.locator('#consulta-tecnica')).to_have_value('pavimentos-permeaveis')
+        expect(pagina.locator('#consulta-variante')).to_have_value('pavimento-com-fundo-impermeavel')
+        pagina.locator('#botao-proxima').click()
+        assert 'numero=4' in pagina.url
+        pagina.locator('#botao-anterior').click()
+        expect(pagina.locator('#consulta-variante')).to_have_value('pavimento-com-fundo-impermeavel')
+        pagina.reload()
+        expect(pagina.locator('#consulta-variante')).to_have_value('pavimento-com-fundo-impermeavel')
+        pagina.goto(f'{base}?numero=6')
+        pagina.locator('#botao-proxima').click()
+        expect(pagina.locator('#consulta-tecnica')).to_have_value('')
+        expect(pagina.locator('#consulta-variante')).to_be_disabled()
+        assert pagina.locator('[data-regra], #consulta-detalhes img').count() == 0
+        pagina.select_option('#consulta-tecnica', 'jardim-chuva')
+        assert pagina.locator('[data-regra]').count() > 0
+        pagina.select_option('#consulta-tecnica', '')
+        assert pagina.locator('[data-regra], #consulta-detalhes img').count() == 0
+        expect(pagina.locator('#consulta-variante')).to_be_disabled()
+        expect(pagina.locator('#botao-anterior')).to_have_attribute('href', 'etapa.html?numero=6')
+        pagina.locator('#botao-anterior').click()
+        assert 'numero=6' in pagina.url
+        assert pagina.evaluate('Object.fromEntries(Object.entries(localStorage))') == fontes
+        # URL explícita prevalece sobre a sessão; IDs desconhecidos na Etapa 7
+        # não podem selecionar a primeira técnica silenciosamente.
+        pagina.goto(f'{base}?numero=3&tecnica=bacia-detencao&variante=bacia-impermeavel')
+        expect(pagina.locator('#consulta-variante')).to_have_value('bacia-impermeavel')
+        pagina.goto(f'{base}?numero=7&tecnica=inexistente&variante=bacia-permeavel')
+        expect(pagina.locator('#consulta-tecnica')).to_have_value('')
+        pagina.evaluate("sessionStorage.setItem('suds-up:interface:catalogo:consulta:v1', '{')")
+        pagina.goto(f'{base}?numero=3')
+        expect(pagina.locator('#consulta-tecnica')).to_have_value('bacia-detencao')
+        # O bloqueio da sessão não impede consultar nem navegar com contexto.
+        pagina.add_init_script("Object.defineProperty(window, 'sessionStorage', {get() { throw new Error('bloqueado'); }});")
+        pagina.goto(f'{base}?numero=3&tecnica=jardim-chuva&variante=jardim-impermeavel')
+        pagina.locator('#consulta-detalhes > a').click()
+        expect(pagina.locator('#consulta-variante')).to_have_value('jardim-impermeavel')
+        pagina.get_by_role('link', name='← Voltar ao catálogo na Etapa 3', exact=True).click()
+        expect(pagina.locator('#consulta-variante')).to_have_value('jardim-impermeavel')
+        assert pagina.evaluate('Object.fromEntries(Object.entries(localStorage))') == fontes
+        assert not erros, erros
+        contexto.close()
+        print(f'OK: navegacao 3/7, estado neutro, sessao, teclado, fontes preservadas e falhas em {largura}px.')
 
 
 # ------------------------------------------------------------
@@ -41,6 +115,7 @@ try:
     print('OK: seis pranchas servidas integralmente por HTTP.', flush=True)
     with sync_playwright() as p:
         browser = p.chromium.launch()
+        validar_navegacao(browser, base)
         page = browser.new_page()
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
@@ -136,6 +211,7 @@ try:
             print(f'OK: todas as técnicas e variantes nas Etapas 3 e 7 em {width}px.')
 
         page.goto(f'{base}?numero=3')
+        page.select_option('#consulta-tecnica', 'bacia-detencao')
         page.select_option('#consulta-variante', 'bacia-impermeavel')
         page.locator('#consulta-detalhes > a').click()
         assert page.locator('#consulta-variante').input_value() == 'bacia-impermeavel'

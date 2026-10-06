@@ -187,10 +187,16 @@ function criarTabela(titulo) {
 // Os retornos encerram os layouts específicos antes de chegar ao layout padrão.
 /**
  * Compõe a área de trabalho preservando a navegação comum das 17 etapas.
- * Revisão 03/10/2026: delega somente as Etapas 8, 10 e 11 aos módulos do Lote 2.
+ * Revisão 04/10/2026: delega os mapas do Lote 3 sem alterar o mapa da Etapa 1.
  * @returns {void} Atualiza DOM e inicia módulos específicos; não grava dados.
  */
 function montarAreaDeTrabalho() {
+  // Os quatro mapas funcionais mantêm orientação, menu e navegação compartilhados.
+  if ([2, 6, 9, 12].includes(etapa.numero)) {
+    elementos.area.innerHTML = `${criarCardOrientacao()}<section id="lote-3-conteudo" role="region" aria-label="Mapa e registros geográficos">Carregando etapa…</section>`;
+    carregarLote3(document.querySelector("#lote-3-conteudo"), etapa.numero);
+    return;
+  }
   // O carregamento específico substitui o placeholder e mantém o mesmo card
   // de orientação. As outras etapas continuam em seus ramos já existentes.
   if ([8, 10, 11].includes(etapa.numero)) {
@@ -366,6 +372,29 @@ async function carregarLote2(container, numero) {
   } catch {
     // Não há tentativa de reparar ou substituir registros quando a tela falha.
     container.textContent = "Não foi possível carregar esta etapa. Recarregue a página.";
+  }
+}
+
+// ------------------------------------------------------------
+// CARREGAMENTO ISOLADO DOS MAPAS DO LOTE 3
+// ------------------------------------------------------------
+/**
+ * Carrega editor manual ou consulta de fontes conforme a responsabilidade da etapa.
+ * @param {Element} container Região específica.
+ * @param {number} numero Etapa 2, 6, 9 ou 12.
+ * @returns {Promise<void>} Inicializa DOM/mapa; trata falha sem modificar storage.
+ */
+async function carregarLote3(container, numero) {
+  try {
+    if (numero === 2 || numero === 6) {
+      const modulo = await import("./mapas/lote-3-editor.js");
+      await modulo.iniciarEditorGeografico(container, numero);
+    } else {
+      const modulo = await import("./mapas/lote-3-consulta.js");
+      await modulo.iniciarConsultaGeografica(container, numero, TECNICAS_SUDS);
+    }
+  } catch {
+    container.textContent = "Não foi possível carregar esta etapa. Os registros foram preservados; recarregue a página.";
   }
 }
 

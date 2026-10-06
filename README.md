@@ -336,13 +336,12 @@ além dos dados/persistência. Textos livres entram por `textContent`/`value`.
 largas. Controles nativos, labels, fieldsets, erros associados, foco no primeiro
 campo inválido e regiões de status permitem operação por teclado.
 
-### Integrações futuras e limites
+### Integrações e limites
 
-O cadastro manual permanece enquanto a Etapa 6 não produzir áreas estruturadas.
-Os IDs estáveis permitem futura integração **6 → 8**, leitura das possibilidades
-em **8 → 9** e consumo das decisões em **11 → 12**. Nenhuma dessas integrações foi
-implementada, nem foram modificados os cálculos ou o contrato da Etapa 13.
-As Etapas 2, 5, 6, 9, 12 e 15 mantêm o comportamento anterior.
+O cadastro manual continua disponível. O Lote 3 acrescentou o aproveitamento
+explícito **6 → 8**, a representação **8 + 6 → 9** e a consolidação **11 + 6 → 12**,
+documentados abaixo. Os cálculos e o contrato da Etapa 13 permanecem inalterados.
+As Etapas 5 e 15 não foram implementadas por esses lotes.
 
 ### Testes do Lote 2
 
@@ -357,6 +356,205 @@ temporária: percorre o fluxo completo em 1440, 900 e 390 px, valida restauraç�
 teclado, segurança textual, console, JSON incompatível, falhas e concorrência.
 Não acessa registros reais do usuário. As suítes anteriores do Lote 1,
 pré-dimensionamento, pontos e técnicas continuam como regressões do projeto.
+
+## Lote 3 — Delimitações manuais e mapas do levantamento
+
+As Etapas **2, 6, 9 e 12** possuem mapas Leaflet 1.9.4 com OpenStreetMap na mesma
+`etapa.html`. A infraestrutura `js/mapas/lote-3-mapa.js` é exclusiva dessas novas
+telas: a implementação da Etapa 1 não foi refatorada. Não há Leaflet.Draw,
+outra biblioteca geográfica, framework, backend ou nova página HTML.
+
+### Etapa 2 — Bacia de contribuição
+
+Use **Iniciar / refazer desenho**, clique na ordem dos vértices e escolha
+**Fechar polígono**. É possível desfazer o último vértice, cancelar o rascunho,
+editar/refazer uma delimitação confirmada ou excluí-la após confirmação.
+Pelo teclado, use as setas para mover o mapa e **Adicionar vértice no centro do
+mapa**, ou informe latitude/longitude nos campos e use **Adicionar coordenadas**.
+Os campos aceitam vírgula ou ponto decimal pelo leitor estrito já utilizado no projeto.
+
+Fechar calcula uma prévia em m² e hectares, mas **Salvar delimitação** é a ação
+que confirma a bacia no navegador. Cancelar mantém a geometria anterior. Não há
+delimitação por relevo, consulta de altitude nem análise hidrológica automática.
+
+Chave: `suds-up:etapa-2:bacia:v1`.
+
+```json
+{
+  "versao": 1,
+  "vertices": [
+    { "latitude": -22.907, "longitude": -43.174 },
+    { "latitude": -22.907, "longitude": -43.173 },
+    { "latitude": -22.906, "longitude": -43.173 }
+  ],
+  "areaM2": 5694.654534580061
+}
+```
+
+O valor de área é derivado: a aplicação sempre recalcula o resultado do modelo
+a partir dos vértices. O último vértice não
+repete o primeiro: o fechamento é implícito. Latitude/longitude precisam ser
+finitas e estar em [-90, 90]/[-180, 180]. São exigidos pelo menos três vértices
+distintos e área finita positiva. Contornos cruzados, com contatos não adjacentes
+ou arestas sobrepostas são rejeitados, evitando uma área ambígua.
+
+### Algoritmo de área e precisão
+
+`calcularArea` em `js/dados/lote-3.js` usa uma aproximação esférica de
+Chamberlain–Duquette (JPL Publication 07-03, 2007), também referenciada pela
+[implementação de área do Turf](https://github.com/Turfjs/turf/blob/master/packages/turf-area/index.ts).
+Nenhuma dependência do Turf foi adicionada. Para latitudes φ e longitudes λ
+em radianos, aplica:
+
+```text
+A = abs(R² / 2 × soma((λ[i+1] − λ[i]) × (sin(φ[i]) + sin(φ[i+1]))))
+R = 6.371.008,8 m
+hectares = A / 10.000
+```
+
+A implementação desenrola longitudes no antimeridiano e subtrai uma constante
+dos senos para reduzir cancelamento numérico em áreas pequenas. Esse termo
+constante se anula no anel fechado. Coordenadas e área usam a precisão de
+`Number`; somente os textos exibidos são arredondados. Pixels, zoom e projeção
+visual do mapa não entram no cálculo. A área armazenada é um valor derivado:
+leituras e importações recalculam pela geometria, sem confiar em um cache antigo.
+O recálculo em memória não regrava silenciosamente a chave.
+
+É uma estimativa esférica para polígonos locais simples, sem furos ou múltiplos
+anéis. Polos e extensão longitudinal igual ou superior a 180° não são suportados.
+Não é medição cadastral elipsoidal nem área corrigida pela inclinação do terreno.
+
+### Integração 2 → 14
+
+**Usar área delimitada na Etapa 2** relê a bacia válida e preenche somente o
+rascunho de **Área total de contribuição**. Área vegetada, talvegue e cotas são
+mantidos. O projetista precisa salvar explicitamente a Etapa 14. Alterar/excluir
+a bacia da Etapa 2 não modifica a Etapa 14; esta continua aceitando entrada manual.
+
+### Etapa 6 — Espaços livres
+
+O mesmo editor manual permite vários espaços. Cada um possui identificação
+obrigatória, contorno, área calculada e observação opcional. Os cards permitem
+localizar no mapa, editar identificação/observação, refazer geometria e excluir.
+IDs e números permanecem estáveis em edição; exclusões não reutilizam números.
+A seleção é do projetista e não aplica automaticamente as regras da Etapa 7.
+
+Chave: `suds-up:etapa-6:espacos-livres:v1`.
+
+```text
+{
+  versao: 1,
+  proximoNumero: 2,
+  espacos: [{
+    id: "UUID", numero: 1, identificacao: "Praça A",
+    vertices: [{ latitude, longitude }, ...],
+    areaM2: número recalculado, observacao: ""
+  }]
+}
+```
+
+`armazenamento-lote-3.js` protege leitura, gravação e exclusão: estruturas
+incompatíveis não são sobrescritas; falhas preservam o rascunho; mudanças em
+outra aba exigem recarregar antes de confirmar. A comparação otimista segue o
+padrão existente, sem prometer transações que localStorage não oferece.
+
+### Integração 6 → 8
+
+Na Etapa 8, selecione um espaço confirmado e use **Adicionar espaço da Etapa 6**.
+A ação prepara um novo rascunho com identificação, área recalculada e o vínculo
+opcional `espacoLivreId`. Complete as demais informações e confirme em
+**Adicionar área**: só então será criado um registro com **ID próprio da Etapa 8**.
+Reimportar um espaço já aproveitado é bloqueado com aviso para editar a área existente.
+Se a origem mudar entre a cópia e a confirmação, a importação é bloqueada e o
+rascunho é preservado.
+
+Registros manuais antigos, sem `espacoLivreId`, continuam válidos, sem migração.
+Editar uma área vinculada conserva esse vínculo, mas não atualiza automaticamente
+a área disponível copiada. Excluir um espaço da Etapa 6 mantém o levantamento e
+as decisões; a Etapa 8 informa que a geometria de origem não está mais disponível.
+
+Uma área manual já existente pode receber geometria sem ser excluída ou recriada.
+No seu card, selecione um espaço confirmado e acione **Associar a espaço da
+Etapa 6**. Após confirmação, somente `espacoLivreId` é acrescentado: ID, número,
+identificação, área disponível, dimensões, possibilidades, observações e demais
+campos existentes são preservados. Não são copiados valores do espaço nessa ação.
+**Remover associação espacial** também exige confirmação e remove somente esse
+vínculo; mantém a área, a geometria da Etapa 6 e os registros posteriores intactos.
+
+Nesta versão, um espaço pode estar associado a no máximo uma área da Etapa 8.
+Essa é uma decisão arquitetural, não uma regra metodológica: tentativas de usar
+um espaço ocupado são bloqueadas com identificação da área que já o utiliza.
+A importação para criar **uma nova área** continua disponível separadamente.
+Alterações em outra aba ou falhas de armazenamento não confirmam a associação.
+
+### Etapas 9 e 12 — consultas sem novas chaves
+
+A Etapa 9 é o mapa das **possibilidades preliminares**: responde o que ainda pode
+ser utilizado em cada área. Lê geometria da Etapa 6 e possibilidades da Etapa 8.
+Polígonos usam
+texto/legenda além de cor: traço contínuo para alternativas com infiltração,
+tracejado para sem infiltração e pontilhado para conjunto misto. Clicar abre resumo;
+o mesmo conteúdo está abaixo do mapa, com botão nativo para localizar cada área.
+Áreas manuais ou com origem excluída aparecem em **Áreas sem localização no mapa**.
+Popup e resumo mostram identificação, área disponível e todas as variantes com
+seus regimes. Nenhuma área ou alternativa é ocultada por não possuir geometria.
+As áreas sem localização recebem orientação e links **Revisar espaços livres**
+e **Associar área**. Após associar pela Etapa 8, passam a ser representadas no mapa.
+Sem áreas com geometria, a Etapa 9 apresenta orientação e links para as Etapas 6
+e 8, sem mapa vazio nem legenda dos regimes. Com geometria, exibe mapa e legenda.
+
+A Etapa 12 é o mapa das **técnicas definitivas do Cenário 1**: responde o que foi
+escolhido. Relaciona Etapas 6/8/11 e representa apenas escolhas finais com geometria
+disponível. Cada variante do catálogo original recebe uma cor estável, independente
+da ordem das áreas e das decisões. Nomes no popup, rótulo e resumo complementam a cor.
+A legenda **Técnicas adotadas no Cenário 1** agrupa variantes presentes no mapa e
+conta suas áreas sem duplicar entradas da mesma variante. Não utiliza a legenda
+agregada de alternativas da Etapa 9. Sem técnica final com geometria, informa o
+estado vazio com links para as Etapas 6, 8 e 11, sem mapa nem legenda vazios;
+decisões sem geometria permanecem nas listas abaixo. Nas duas consultas, o Leaflet
+só é inicializado quando há polígonos a representar. O enquadramento automático
+abrange todas as geometrias, com zoom limitado para áreas pequenas; mudanças das
+fontes alternam entre orientação e mapa sem alterar os registros.
+
+Popup e resumo mostram identificação, técnica/variante, regime, área disponível
+da Etapa 8 quando existente, motivo, restrição projetual e observações pós-campo.
+Há listas de **Intervenções sem localização no mapa** e **Áreas sem
+técnica definida**; decisões preservadas após exclusão de área continuam visíveis.
+Há orientação e links para associar as áreas existentes; decisões cuja área foi
+excluída recebem orientação para revisar os registros preservados.
+Ausência de escolha não produz uma solução automática.
+
+Ambas as consultas atualizam as fontes quando outra aba muda os registros e não
+criam chaves próprias, cópias persistidas ou intervenções. **Prosseguir para o
+pré-dimensionamento** é apenas navegação: a Etapa 13 exige seu próprio cadastro
+confirmado e mantém seus cálculos intactos.
+
+### Limitações e validação do Lote 3
+
+Leaflet e tiles exigem rede. Falhas são informadas sem bloquear os registros,
+resumos ou a entrada alternativa de vértices por coordenadas. Há atribuição OSM,
+zoom, navegação por teclado, foco visível e mensagens de status. O módulo não
+consulta Nominatim. Não há IA, shapefile, importação GeoJSON/KML, curvas de nível
+automáticas, altitude automática ou delimitação hidrológica automática.
+As Etapas 5 e 15 continuam fora deste lote.
+
+```text
+node tests/lote-3.test.mjs
+python -u tests/validar-lote-3.py
+```
+
+O teste puro compara a área a um retângulo esférico analítico e cobre contratos,
+CRUD, concorrência, recálculo, importação, associação/remoção e consolidação.
+Verifica também contagens e cores estáveis da legenda por variante final.
+O teste de navegador usa
+Leaflet real e tiles controlados em perfil temporário, percorre as integrações em
+1440, 900 e 390 px e exercita falhas de Leaflet/tiles sem consultar Nominatim.
+Inclui preservação integral dos campos ao associar/remover, bloqueio de espaço
+ocupado, cancelamento, recarga, estilos por regime, popups completos e legenda
+dinâmica com técnicas diferentes, repetidas e sem geometria.
+As suítes anteriores dos Lotes 1/2, pontos, técnicas e pré-dimensionamento permanecem
+como regressões. Não há teste manual com leitor de tela nem validação cadastral
+da precisão geográfica.
 
 ## Mapa interativo da Etapa 1
 
@@ -406,7 +604,7 @@ outra aba exigem recarregar antes de salvar. Existe apenas um levantamento local
 O módulo carrega Leaflet 1.9.4 (CSS e JavaScript via CDN), os mapas do OpenStreetMap
 e consulta o Nominatim. É necessário acesso à internet. Não há instalação,
 compilação ou servidor de aplicação; os caminhos relativos funcionam no GitHub Pages.
-As demais etapas mantêm seus conteúdos e mapas ilustrativos.
+As Etapas 2, 6, 9 e 12 usam a infraestrutura cartográfica independente do Lote 3.
 
 A busca textual acontece somente pelo botão, sem autocomplete. Ela compartilha
 com a consulta reversa uma fila com intervalo mínimo de 1,1 segundo entre inícios
@@ -441,8 +639,9 @@ Observe também a
 6. Recarregue sem internet: a falha do mapa deve ser informada, sem impedir a navegação.
 7. Confira larguras de celular e desktop, atribuição visível e modal de orientações
    acima do mapa. Navegue pelas 17 etapas, pelos botões anterior/próxima e volte à capa.
-8. Nas etapas 2 a 17, confirme ausência de mapa Leaflet e de requisições do módulo,
-   CDN, mapas e Nominatim. Observe o Console em todos os testes.
+8. Fora da Etapa 1, confirme ausência de requisições ao módulo da Etapa 1 e ao
+   Nominatim. As Etapas 2, 6, 9 e 12 também usam Leaflet/OSM pelo Lote 3;
+   nas demais etapas não há mapa Leaflet. Observe o Console em todos os testes.
 9. Localize e edite um ponto. Cancele outra edição e confira os dados anteriores.
    Exclua um ponto, recarregue e adicione outro: o número excluído não deve voltar.
 10. Avance à Etapa 2, retorne e depois feche/reabra o site na mesma origem:

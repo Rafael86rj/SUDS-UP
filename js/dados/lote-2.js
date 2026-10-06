@@ -7,7 +7,7 @@
 // Dependências: Leitor decimal existente da Etapa 13; catálogo recebido.
 // Utilizado por: Interfaces, armazenamento e testes do Lote 2.
 // Criado em: 03/10/2026
-// Última revisão: 03/10/2026
+// Última revisão: 04/10/2026
 // ------------------------------------------------------------
 import { lerDecimal } from "../calculos/pre-dimensionamento.js";
 
@@ -151,6 +151,12 @@ export function validarPossiveis(ids, variantes) {
 export function errosRegistro(etapa, dados, variantes) {
   const campos = etapa === 8 ? CAMPOS_AREA : etapa === 10 ? CAMPOS_VISITA : CAMPOS_DECISAO;
   const erros = errosCampos(dados, campos);
+  // Revisão 04/10/2026: vínculo opcional com geometria da Etapa 6. Registros
+  // antigos sem a propriedade continuam válidos e não são migrados na leitura.
+  if (etapa === 8 && dados?.espacoLivreId !== undefined
+      && (typeof dados.espacoLivreId !== "string" || !dados.espacoLivreId.trim())) {
+    erros.espacoLivreId = "O vínculo com o espaço livre deve ser um ID válido.";
+  }
   if (etapa !== 10 && !validarPossiveis(dados?.possiveis, variantes)) {
     erros.possiveis = "Selecione somente variantes do catálogo, sem duplicatas.";
   }

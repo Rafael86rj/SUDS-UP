@@ -23,9 +23,10 @@ const ETAPAS = [
     titulo: "Bacia de contribuição do terreno",
     menu: "Bacia de contribuição",
     descricao: "Delimite a área do entorno cujo escoamento superficial contribui para o terreno estudado.",
-    objetivo: "Representar o caminho da água até o lote usando relevo, cotas, curvas de nível e drenagem.",
-    passos: ["Informar o endereço do terreno", "Reunir plantas e dados topográficos", "Traçar e justificar o contorno da bacia"],
-    resultado: "Contorno preliminar da bacia, ponto de saída, cotas e referências territoriais utilizadas.",
+    // Revisão 04/10/2026: delimitação manual, sem inferência topográfica automática.
+    objetivo: "Registrar o contorno manual da bacia e estimar sua área pelas coordenadas geográficas.",
+    passos: ["Iniciar o desenho manual no mapa", "Adicionar vértices e fechar um contorno sem cruzamentos", "Conferir a área e salvar a delimitação"],
+    resultado: "Bacia delimitada manualmente, com área em m² e hectares disponível para aproveitamento explícito na Etapa 14.",
     tipoTela: "mapa-bacia"
   },
   {
@@ -66,10 +67,11 @@ const ETAPAS = [
     grupo: "Leitura territorial",
     titulo: "Espaços livres com vocação para SUDS",
     menu: "Espaços livres",
-    descricao: "Analise o mapa físico e destaque espaços que podem receber intervenções.",
-    objetivo: "Produzir uma seleção preliminar de áreas livres para avaliação posterior.",
-    passos: ["Sobrepor as informações reunidas", "Identificar espaços livres", "Registrar a justificativa de cada área"],
-    resultado: "Mapa preliminar dos espaços livres selecionados.",
+    // Revisão 04/10/2026: cadastro geográfico manual sem classificar aptidão.
+    descricao: "Delimite manualmente espaços livres para análise posterior das possibilidades de SUDS.",
+    objetivo: "Registrar identificação, contorno e área de cada espaço, sem determinar automaticamente sua aptidão.",
+    passos: ["Identificar o espaço livre", "Desenhar e fechar seu polígono no mapa", "Conferir a área calculada e salvar o espaço"],
+    resultado: "Espaços livres cadastrados com geometria e área, disponíveis para aproveitamento na Etapa 8.",
     tipoTela: "mapa-areas"
   },
   {
@@ -102,8 +104,9 @@ const ETAPAS = [
     menu: "Mapa de possibilidades",
     descricao: "Espacialize as alternativas e diferencie técnicas com e sem infiltração.",
     objetivo: "Visualizar a distribuição das possibilidades antes da verificação em campo.",
-    passos: ["Localizar as áreas cadastradas", "Aplicar a legenda por tipo de técnica", "Revisar conflitos espaciais"],
-    resultado: "Mapa temático das possibilidades de intervenção.",
+    // Revisão 04/10/2026: leitura das possibilidades, inclusive áreas sem geometria.
+    passos: ["Consultar áreas vinculadas aos espaços da Etapa 6", "Conferir possibilidades e regimes de infiltração nos resumos", "Revisar na Etapa 8 as áreas com ou sem localização"],
+    resultado: "Mapa e resumos das possibilidades preliminares, sem novo cadastro de técnicas.",
     tipoTela: "mapa-possibilidades"
   },
   {
@@ -135,10 +138,11 @@ const ETAPAS = [
     grupo: "Construção do cenário",
     titulo: "Mapa do Cenário 1",
     menu: "Mapa do Cenário 1",
-    descricao: "Represente no mapa as técnicas definidas para cada área selecionada.",
-    objetivo: "Consolidar espacialmente a primeira proposta de intervenção.",
-    passos: ["Confirmar áreas e técnicas", "Posicionar as intervenções", "Revisar a legenda do cenário"],
-    resultado: "Mapa consolidado do Cenário 1.",
+    // Revisão 04/10/2026: consolidação de leitura, sem criar intervenções na Etapa 13.
+    descricao: "Consulte no mapa as escolhas pós-campo confirmadas na Etapa 11 e vinculadas aos espaços da Etapa 6.",
+    objetivo: "Consolidar espacialmente as decisões do projetista e explicitar registros sem geometria ou técnica definida.",
+    passos: ["Conferir técnicas selecionadas e justificativas", "Consultar também registros sem localização ou sem técnica definida", "Prosseguir para o pré-dimensionamento e cadastrar suas intervenções explicitamente"],
+    resultado: "Mapa e resumos do Cenário 1, sem criação automática de intervenções de pré-dimensionamento.",
     tipoTela: "mapa-cenario"
   },
   {

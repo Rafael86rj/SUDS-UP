@@ -1,0 +1,47 @@
+/* ------------------------------------------------------------
+   SUDS-UP — METADADOS DO ARQUIVO
+   Arquivo: css/lote-3.css
+   Módulo: Mapas e integrações do Lote 3
+   Objetivo: Manter mapas, controles e resumos utilizáveis até 390 px.
+   Responsabilidade: Estilos locais e foco visível.
+   Dependências: Variáveis e componentes CSS existentes.
+   Utilizado por: etapa.html e interfaces geográficas.
+   Criado em: 04/10/2026
+   Última revisão: 04/10/2026
+   ------------------------------------------------------------ */
+/* O escopo preserva o mapa e os controles existentes da Etapa 1. */
+.lote-3 { min-width: 0; overflow-wrap: anywhere; line-height: 1.6; }
+.lote-3 .geo-mapa { height: clamp(300px, 55vh, 520px); width: 100%; border-radius: var(--raio-md); isolation: isolate; }
+.lote-3 .geo-acoes { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 16px; }
+.lote-3 .campo { min-width: 0; margin-block: 12px; }
+.lote-3 .campo label { font-size: 13px; }
+.lote-3 fieldset { min-width: 0; padding: 16px; border: 1px solid var(--borda); border-radius: var(--raio-md); }
+.lote-3 legend { font-weight: 700; }
+/* Resumos completos abaixo do mapa são alternativa textual e de teclado. */
+.lote-3 .geo-resumo, .lote-3 .geo-legenda, .geo-integracao { padding: 16px; margin-block: 18px; background: var(--azul-50); border: 1px solid var(--borda); border-radius: var(--raio-md); }
+.lote-3 .geo-resumo p { white-space: pre-wrap; }
+.lote-3 a { color: var(--azul-800); text-decoration: underline; }
+.lote-3 .geo-erro { color: var(--erro); }
+.lote-3 [aria-invalid="true"] { outline: 2px solid var(--erro); }
+.lote-3 .geo-status { min-height: 1.6em; }
+.lote-3 .geo-area { font-weight: 700; }
+.lote-3 :focus-visible, .geo-integracao :focus-visible { outline: 3px solid var(--azul-800); outline-offset: 3px; }
+.lote-3 button:disabled, .geo-integracao button:disabled { opacity: .6; cursor: default; }
+.lote-3 summary { cursor: pointer; padding-block: 10px; }
+.lote-3 .geo-resumo .botao { margin-right: 12px; }
+/* Apenas as consultas 9/12 recebem legenda de escolhas e popups multilinha.
+   Não altera os controles ou os polígonos dos editores das Etapas 2 e 6. */
+.geo-consulta-mapa .leaflet-popup-content p { white-space: pre-line; overflow-wrap: anywhere; }
+.geo-consulta-mapa .geo-tecnicas-adotadas { list-style: none; padding: 0; }
+.geo-consulta-mapa .geo-tecnicas-adotadas li { display: flex; align-items: flex-start; gap: 12px; margin-block: 10px; }
+.geo-consulta-mapa .geo-tecnicas-adotadas svg { width: 20px; height: 20px; flex: 0 0 20px; margin-top: 3px; }
+/* Controles de associação pertencem somente aos cards da Etapa 8. */
+.lote-2 .geo-associacao .botao { margin-block: 10px; }
+/* Controles tocáveis e grade em uma coluna evitam overflow com a sidebar. */
+@media (max-width: 1050px) { .lote-3 .campos { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 780px) {
+  .lote-3 { padding: 16px; }
+  .lote-3 .geo-acoes .botao { width: 100%; }
+  .lote-3 .geo-resumo, .lote-3 fieldset { padding: 12px; }
+  .geo-integracao .botao { width: 100%; }
+}
