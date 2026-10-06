@@ -112,8 +112,8 @@ python -u tests/validar-pre-dimensionamento.py
 
 O teste de navegador usa Playwright/Chromium já instalados e um perfil temporário.
 Não acessa cenários reais; as consultas Nominatim da regressão são simuladas.
-A Etapa 15 ainda não está implementada. A comparação com uma demanda disponível
-é realizada pela Etapa 17, descrita abaixo.
+A Etapa 15 foi implementada no Lote 4, descrito ao final deste documento.
+A comparação com a demanda confirmada e atual é realizada pela Etapa 17.
 
 ## Lote 1 — Etapas 4, 14, 16 e 17
 
@@ -154,20 +154,20 @@ ao recarregar ou retornar à etapa. Os dois formulários restauram dados na mesm
 origem/navegador e preservam rascunhos em falhas de gravação. Registros incompatíveis
 bloqueiam a gravação; alterações em outra aba exigem recarregar antes de salvar.
 
-### Contrato futuro da Etapa 15 e painel da Etapa 16
+### Contrato da Etapa 15 e painel da Etapa 16
 
-A Etapa 15 **não está implementada** e não recebe dados fictícios deste lote.
-Seu futuro produtor deve gravar, na chave `suds-up:etapa-15:chuva-projeto:v1`:
+A Etapa 15 produz dados reais a partir da bacia confirmada e dos parâmetros do
+projetista. Mantém o contrato mínimo na chave `suds-up:etapa-15:chuva-projeto:v1`:
 
 ```text
 { versao: 1, volumeChuvaAManejar: <número finito não negativo, em m³> }
 ```
 
 `volumeChuvaAManejar` deve ser um número JSON, não texto formatado. O contrato
-aceita campos extras para futura rastreabilidade. O produtor deverá manter seu
-resultado atualizado conforme as entradas; este lote não calcula nem invalida
-automaticamente uma chuva de projeto. Os exemplos de volume usados nos testes
-ficam exclusivamente em contextos isolados.
+aceita campos extras de rastreabilidade. O Lote 4 compara o snapshot da bacia com
+a Etapa 14 atual antes de consumir a demanda. Resultados sem snapshot ou com
+origem alterada ficam pendentes de recálculo, preservados no armazenamento.
+Os exemplos de volume usados nos testes ficam exclusivamente em contextos isolados.
 
 A Etapa 16 apenas lê esse contrato. Sem registro, mostra **Volume ainda não
 calculado** e o link **Revisar chuva de projeto** para a Etapa 15. Dados incompatíveis
@@ -658,3 +658,159 @@ ao Nominatim. O carregamento do Leaflet ainda precisa de internet.
 
 O mapa serve exclusivamente para localização e marcação manual. Não calcula
 bacia de contribuição, altitude, declividade, curvas de nível ou caminho da água.
+
+## Lote 4 — Inventário técnico e chuva de projeto (06/10/2026)
+
+### Etapa 5 — Inventário manual
+
+Registra **Hidrografia**, **Rede de drenagem**, **Infraestrutura existente**,
+**Uso do solo** e **Patrimônio**. Categoria, identificação e fonte/órgão são
+obrigatórios. Referência temporal e observações são livres; a lacuna de informação
+é indicada pelo projetista. Não interpreta bases nem classifica aptidão para SUDS.
+
+Adicionar, editar e excluir (com confirmação) são ações explícitas. Cancelar
+afeta somente o rascunho. Edição conserva ID/número; exclusão não reutiliza números.
+Reload restaura os registros confirmados na mesma origem/navegador.
+
+Chave: `suds-up:etapa-5:mapeamento-tecnico:v1`.
+
+```text
+{
+  versao: 1,
+  proximoNumero: inteiro positivo crescente,
+  registros: [{ id, numero, categoria, identificacao, fonte,
+                referenciaTemporal, observacoes, lacuna: boolean }]
+}
+```
+
+### Etapa 15 — Origem, metodologia e unidades
+
+Lê exclusivamente os cinco números **confirmados** da Etapa 14. Sem bacia válida,
+não calcula nem assume volume zero. Dados de origem são apresentados como texto,
+não como novas entradas manuais. Coeficientes, TR e runoff alimentam uma prévia;
+somente **Confirmar chuva de projeto** persiste o resultado. Rascunho inválido
+ou não salvo não modifica a demanda usada nas Etapas 16 e 17.
+
+As funções puras estão em `js/calculos/chuva-projeto.js`:
+
+```text
+P = areaVegetada / areaTotal                            [fração 0–1]
+L_km = comprimentoTalvegue / 1000                       [km]
+S = (cotaMaxima - cotaMinima) / comprimentoTalvegue      [m/m]
+tcMin = 16 * L_km / ((1.05 - 0.2 * P) * (100 * S)^0.04) [min]
+tcHoras = tcMin / 60                                   [h]
+i = a * TR^b / (tcMin + c)^d                            [mm/h]
+alturaMm = i * tcHoras                                 [mm]
+alturaM = alturaMm / 1000                               [m]
+areaUrbana = areaTotal - areaVegetada                   [m²]
+volumeChuvaAManejar = runoff * alturaM * areaUrbana      [m³]
+```
+
+A implementação da relação IDF segue a Equação 3 da dissertação:
+i = a × TR^b / (t + c)^d.
+
+A fórmula encontrada na planilha original diverge dessa equação e não foi utilizada como fonte normativa para o site.
+
+Nenhuma etapa do cálculo arredonda valores. Números são armazenados com a precisão
+de `Number`; somente a apresentação usa pt-BR, em geral com duas casas decimais.
+Frações, declividade, km e altura em metros mostram precisão adicional para auditoria.
+Entradas usam o leitor decimal estrito já adotado na Etapa 13, sem transformar
+vazio em zero nem aceitar parcialmente textos. Resultados intermediários não
+finitos, overflow e `tcMin + c <= 0` impedem confirmação.
+
+**TR** inicia em 10 anos e deve ser finito e positivo. **Runoff** inicia em 0,40,
+é editável entre 0 e 1 e não é reiniciado pela troca de posto ou modo. Área urbana
+zero e runoff zero produzem demanda zero válida, sem confundi-la com ausência.
+
+### Postos cadastrados e modo manual
+
+`js/dados/postos-pluviometricos.js` conserva exatamente os valores fornecidos:
+
+| Posto | a | b | c | d | Fonte |
+|---|---:|---:|---:|---:|---|
+| Santa Cruz | 711.3 | 0.18 | 7 | 0.687 | PCRJ - Cohidro |
+| Campo Grande | 891.6 | 0.18 | 14 | 0.689 | PCRJ - Cohidro |
+| Mendanha | 843.7 | 0.17 | 12 | 0.698 | PCRJ - Cohidro |
+| Bangu | 1208 | 0.17 | 14 | 0.788 | PCRJ - Cohidro |
+| Jardim Botânico | 1239 | 0.15 | 20 | 0.74 | Ulysses Alcântara |
+| Capela Mayrink | 921.3 | 0.16 | 15.4 | 0.673 | Rio Águas (2003) |
+| Via 11 | 1423 | 0.19 | 14.5 | 0.796 | Rio Águas (2005) |
+| Sabóia Lima | 1782 | 0.17 | 16.6 | 0.841 | Rio Águas (2006) |
+| Benfica | 7032 | 0.15 | 26.6 | 0.141 | Rio Águas (2006) |
+| Realengo | 1164 | 0.14 | 6.96 | 0.769 | Rio Águas (2006) |
+| Irajá | 5986 | 0.15 | 29.7 | 1.05 | Rio Águas (2007) |
+| Eletrobrás - Taquara | 1660 | 0.15 | 14.7 | 0.841 | Rio Águas (2009) |
+
+Nenhum posto é selecionado automaticamente. No modo cadastrado, identificação,
+fonte e coeficientes são visíveis e somente leitura. O modo manual exige nome,
+fonte e a/b/c/d finitos (a positivo) e utiliza **a mesma função IDF**. Não são
+inventadas faixas técnicas adicionais para b/c/d. Seleção e aplicabilidade
+dos parâmetros permanecem responsabilidade do projetista.
+
+### Persistência, rastreabilidade e integração 14 → 15 → 16 → 17
+
+A chave `suds-up:etapa-15:chuva-projeto:v1` mantém `versao: 1` e
+`volumeChuvaAManejar` finito não negativo, incluindo zero. O produtor acrescenta:
+
+```text
+{
+  versao: 1, metodo: "dissertacao-eq3-v1",
+  modo: "posto" | "manual", postoId: string | null, nome, fonte,
+  a, b, c, d, TR, runoff,
+  baciaUtilizada: { versao: 1, areaTotal, areaVegetada,
+                   comprimentoTalvegue, cotaMaxima, cotaMinima },
+  P, L_km, S, tcMin, tcHoras, intensidade,
+  alturaMm, alturaM, areaUrbana, volumeChuvaAManejar
+}
+```
+
+O método novo tem seus resultados conferidos por recálculo durante a validação.
+`lerChuvaAtual` compõe os leitores existentes e compara numericamente os cinco
+campos do snapshot com a bacia confirmada atual. Mudanças físicas, origem ausente
+ou incompatível tornam o resultado **desatualizado**. O registro original não é
+apagado. Legados com apenas o contrato mínimo são lidos e preservados, mas sem
+snapshot não podem ser tratados como demanda atual; é necessária confirmação
+explícita na Etapa 15. Não há migração silenciosa.
+
+A Etapa 16 informa recálculo necessário, com link para 15. A Etapa 17 fica com
+**Avaliação pendente**, sem aprovação/reprovação baseada na demanda antiga.
+Com resultado válido e atual, mantém capacidade recalculada da Etapa 13,
+`capacidade >= demanda` e `capacidade / demanda × 100`; demanda zero mostra
+percentual **Não se aplica**. Os painéis permanecem somente leitura e acompanham
+alterações relevantes em outra aba ou retorno pelo histórico.
+
+As confirmações de 5/15 reutilizam `abrirRegistro` do Lote 1: ausência, dados
+incompatíveis, bloqueio de leitura/escrita e alteração concorrente são distintos.
+Em falha, o rascunho e o registro antigo são preservados. A Etapa 15 também relê
+a bacia antes da prévia/confirmação, impedindo salvar com origem alterada enquanto
+o formulário estava aberto. Não é preciso apagar resultados em `bacia-interface.js`.
+
+### Validação do Lote 4
+
+```text
+node tests/lote-4.test.mjs
+python -u tests/validar-lote-4.py
+```
+
+Referência: área total 1039587 m², área vegetada 276339 m², talvegue 1292,2 m,
+cotas 209,9/2,84 m, Jardim Botânico, TR 10 e runoff 0,40. Resultados:
+P = 0,2658161366004; S ≈ 0,1602383531961 m/m; tc ≈ 18,5624377391 min;
+i ≈ 117,3031274299 mm/h; altura ≈ 36,2905333253 mm; área urbana 763248 m²;
+volume **11079,470791775657 m³**, apresentado como **11.079,47 m³**.
+O teste rejeita a intensidade divergente de aproximadamente 124,53 mm/h.
+
+Os testes cobrem precisão, unidades, zeros, coeficientes, overflow, contratos,
+CRUD/IDs/numeração, armazenamento bloqueado/incompatível, concorrência, modos IDF,
+prévia/confirmação/reload, snapshot e comparação menor/igual/maior. O navegador
+produz o fluxo normal pela UI, sem injetar resultados. Fixtures de falha ficam
+exclusivamente nos perfis descartáveis. Larguras: 1440, 900 e 390 px, com teclado.
+As regressões dos Lotes 1–3, pré-dimensionamento e técnicas permanecem executáveis;
+as fixtures de chuva válida do Lote 1 agora identificam a bacia utilizada.
+
+### Limitações deste lote
+
+Inventário documental manual, sem upload, mapas técnicos automáticos ou seleção
+automática de posto. Nenhuma API foi adicionada. O cálculo usa as equações e os
+coeficientes fornecidos, sem verificação automática de validade regional da IDF.
+Armazenamento local depende da origem/navegador. Relatório final da Etapa 17,
+impressão/PDF, exportações geoespaciais e demais ampliações ficam fora deste lote.

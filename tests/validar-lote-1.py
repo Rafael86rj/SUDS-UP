@@ -42,6 +42,10 @@ def read(page,key):
 
 
 def write(page,key,data):
+    # Lote 4: fixtures de demanda confirmada identificam a bacia utilizada.
+    # O contrato mínimo continua aceito, mas sem snapshot a demanda fica pendente.
+    if key == CHUVA and data.get('versao') == 1:
+        data = {**data, 'baciaUtilizada': json.loads(read(page, BACIA))}
     page.evaluate('([key,data])=>localStorage.setItem(key,JSON.stringify(data))',[key,data])
 
 

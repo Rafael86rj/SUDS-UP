@@ -1,0 +1,17 @@
+/* ------------------------------------------------------------
+   Arquivo: css/lote-4.css — 06/10/2026
+   Objetivo: Inventário e auditoria hidrológica responsivos.
+   Responsabilidade: Complementar lote-1.css somente nas Etapas 5 e 15.
+   ------------------------------------------------------------ */
+.lote-4 .campo input, .lote-4 .campo select, .lote-4 .campo textarea { min-width: 0; max-width: 100%; }
+.lote-4 .lote4-checkbox { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.lote-4 .lote4-checkbox input { width: 20px; height: 20px; flex: 0 0 20px; }
+.lote-4 .lote4-registro { padding: 16px; border: 1px solid var(--borda); border-radius: var(--raio-md); margin-block: 18px; white-space: pre-wrap; }
+.lote-4 section { margin-block: 20px; }
+.lote-4 .lote4-metricas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.lote-4 .lote4-metricas > div { min-width: 0; padding: 12px; background: var(--azul-50); border-radius: var(--raio-md); }
+.lote-4 .lote4-metricas dd { font-size: 18px; }
+.lote-4 input[readonly] { background: var(--azul-50); }
+@media (max-width: 1050px) {
+  .lote-4 .campos, .lote-4 .lote4-metricas { grid-template-columns: minmax(0, 1fr); }
+}

@@ -56,8 +56,8 @@ const ETAPAS = [
     grupo: "Leitura territorial",
     titulo: "Mapeamento técnico do entorno",
     menu: "Mapeamento técnico",
-    descricao: "Mapeie hidrografia, drenagem, infraestrutura, uso do solo e áreas de patrimônio.",
-    objetivo: "Orientar a busca das bases territoriais necessárias para a análise.",
+    descricao: "Registre manualmente as informações consultadas sobre hidrografia, drenagem, infraestrutura, uso do solo e patrimônio.",
+    objetivo: "Documentar fontes, referências temporais e lacunas, sem interpretar automaticamente a aptidão para SUDS.",
     passos: ["Consultar fontes oficiais", "Registrar arquivos e datas", "Identificar lacunas de informação"],
     resultado: "Inventário das bases e documentos técnicos do entorno.",
     tipoTela: "checklist"
@@ -174,8 +174,8 @@ const ETAPAS = [
     menu: "Chuva de projeto",
     descricao: "Calcule tempo de concentração, intensidade, altura pluviométrica e volume de chuva.",
     objetivo: "Determinar o volume de chuva que deverá ser comparado com a capacidade do cenário.",
-    passos: ["Selecionar ou editar os coeficientes IDF", "Definir TR e runoff", "Executar e revisar o cálculo"],
-    resultado: "Tempo de concentração, intensidade, altura e volume pelo método racional.",
+    passos: ["Conferir os dados confirmados da Etapa 14", "Selecionar o posto ou informar coeficientes IDF e fonte", "Definir TR e runoff, revisar a prévia e confirmar o resultado"],
+    resultado: "Tempo de concentração, intensidade, altura e volume confirmados com rastreabilidade da bacia utilizada.",
     tipoTela: "chuva-projeto"
   },
   {

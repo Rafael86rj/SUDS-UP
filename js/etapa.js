@@ -191,6 +191,13 @@ function criarTabela(titulo) {
  * @returns {void} Atualiza DOM e inicia módulos específicos; não grava dados.
  */
 function montarAreaDeTrabalho() {
+  // Lote 4: inventário documental e cálculo hidrológico mantêm responsabilidades
+  // próprias; ambos reutilizam a persistência defensiva dos registros existentes.
+  if ([5, 15].includes(etapa.numero)) {
+    elementos.area.innerHTML = `${criarCardOrientacao()}<section id="lote-4-conteudo" role="region" aria-label="Área de trabalho da etapa">Carregando etapa…</section>`;
+    carregarLote4(document.querySelector("#lote-4-conteudo"), etapa.numero);
+    return;
+  }
   // Os quatro mapas funcionais mantêm orientação, menu e navegação compartilhados.
   if ([2, 6, 9, 12].includes(etapa.numero)) {
     elementos.area.innerHTML = `${criarCardOrientacao()}<section id="lote-3-conteudo" role="region" aria-label="Mapa e registros geográficos">Carregando etapa…</section>`;
@@ -282,6 +289,24 @@ function montarAreaDeTrabalho() {
 
   // Tipos fora das duas listas recebem orientação e formulário genérico.
   elementos.area.innerHTML = `<div class="grade-trabalho">${criarCardOrientacao()}${criarFormularioPadrao()}</div>`;
+}
+
+// ------------------------------------------------------------
+// CARREGAMENTO DO INVENTÁRIO E DO CÁLCULO HIDROLÓGICO — 06/10/2026
+// ------------------------------------------------------------
+/** @param {Element} container Destino. @param {number} numero Etapa 5 ou 15. @returns {Promise<void>} Inicializa módulo/DOM; falha não altera storage. */
+async function carregarLote4(container, numero) {
+  try {
+    if (numero === 5) {
+      const modulo = await import("./mapeamento-tecnico-interface.js");
+      modulo.iniciarMapeamentoTecnico(container);
+    } else {
+      const modulo = await import("./chuva-projeto-interface.js");
+      modulo.iniciarChuvaProjeto(container);
+    }
+  } catch {
+    container.textContent = "Não foi possível carregar esta etapa. Recarregue a página. Os registros foram preservados.";
+  }
 }
 
 // ------------------------------------------------------------

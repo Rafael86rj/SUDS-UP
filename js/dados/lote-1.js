@@ -54,12 +54,13 @@ export function validarBacia(dados) {
 }
 
 // ------------------------------------------------------------
-// CONTRATO FUTURO DA CHUVA E AVALIAÇÃO COM VALORES NÃO ARREDONDADOS
+// CONTRATO COMPATÍVEL DA CHUVA E AVALIAÇÃO COM VALORES NÃO ARREDONDADOS
 // ------------------------------------------------------------
-// A Etapa 15 ainda não produz este objeto. 16 e 17 apenas leem:
+// Revisão 06/10/2026: a Etapa 15 produz este objeto com rastreabilidade.
+// 16 e 17 verificam atualidade via lerChuvaAtual antes de usar o contrato:
 // { versao: 1, volumeChuvaAManejar: <número finito não negativo em m³> }.
 // Zero é um resultado explícito válido, distinto de ausência; seu percentual
-// não é definido. Campos extras são permitidos para futura rastreabilidade.
+// não é definido. Campos extras guardam entradas, snapshot e resultados.
 export function validarChuva(dados) {
   return Boolean(dados && dados.versao === 1 && Number.isFinite(dados.volumeChuvaAManejar) && dados.volumeChuvaAManejar >= 0);
 }

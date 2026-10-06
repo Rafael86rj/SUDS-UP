@@ -1,4 +1,10 @@
-import { CHAVE_CHUVA, validarChuva, avaliarCenario } from "./dados/lote-1.js";
+// ------------------------------------------------------------
+// Arquivo: js/resultados-interface.js — revisão 06/10/2026
+// Objetivo: Exibir demanda e comparar capacidade somente com chuva atual.
+// Responsabilidade: Leitura e avaliação; não grava nem migra registros.
+// ------------------------------------------------------------
+import { CHAVE_CHUVA, CHAVE_BACIA, avaliarCenario } from "./dados/lote-1.js";
+import { lerChuvaAtual } from "./dados/armazenamento-lote-4.js";
 import { CHAVE_CENARIO, validarCenario } from "./dados/cenario-pre-dimensionamento.js";
 import { lerRegistro } from "./dados/armazenamento-lote-1.js";
 
@@ -7,11 +13,20 @@ import { lerRegistro } from "./dados/armazenamento-lote-1.js";
 // ------------------------------------------------------------
 // Não criam resultados nem duplicam totais no armazenamento. A capacidade usa
 // a validação e a função de cálculo da Etapa 13 por meio de avaliarCenario.
+/** @param {Element} container Destino. @param {number} numero Etapa 16 ou 17. @param {Array} catalogo Técnicas. @returns {void} Monta painéis somente de leitura e observa fontes. */
 export function iniciarResultados(container, numero, catalogo) {
   const variantes = new Set(catalogo.flatMap(tecnica => tecnica.variantes.map(variante => variante.id)));
+  // ------------------------------------------------------------
+  // FORMATAÇÃO VISUAL SEM ALTERAR PRECISÃO DO CÁLCULO
+  // ------------------------------------------------------------
+  /** @param {number} valor Volume. @returns {string} Texto pt-BR, sem mutação. */
   const formatar = valor => new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(valor);
   container.className = "card lote-1";
 
+  // ------------------------------------------------------------
+  // INSERÇÃO SEGURA DE TEXTO
+  // ------------------------------------------------------------
+  /** @param {Element} pai Destino. @param {string} tag Tag. @param {string} conteudo Texto. @param {string} classe Classe opcional. @returns {HTMLElement} Elemento inserido, sem storage. */
   function texto(pai, tag, conteudo, classe) {
     const elemento = document.createElement(tag);
     elemento.textContent = conteudo;
@@ -19,19 +34,33 @@ export function iniciarResultados(container, numero, catalogo) {
     pai.append(elemento);
     return elemento;
   }
+  // ------------------------------------------------------------
+  // LINK DE REVISÃO DA ORIGEM
+  // ------------------------------------------------------------
+  /** @param {Element} pai Destino. @param {string} rotulo Texto. @param {number} etapa Etapa. @returns {void} Insere link; sem persistência. */
   function acao(pai, rotulo, etapa) {
     const link = texto(pai, "a", rotulo, "botao botao--secundario");
     link.href = `etapa.html?numero=${etapa}`;
   }
+  // ------------------------------------------------------------
+  // VALOR E RÓTULO DA MÉTRICA
+  // ------------------------------------------------------------
+  /** @param {Element} pai Lista. @param {string} rotulo Nome. @param {string} valor Valor visual. @param {string} id ID. @returns {void} Monta descrição no DOM. */
   function metrica(pai, rotulo, valor, id) {
     const bloco = document.createElement("div");
     texto(bloco, "dt", rotulo);
     texto(bloco, "dd", valor).id = id;
     pai.append(bloco);
   }
+  // ------------------------------------------------------------
+  // RELEITURA DAS FONTES E AVALIAÇÃO SOMENTE COM DEMANDA ATUAL
+  // ------------------------------------------------------------
+  /** @returns {void} Substitui painel; chuva inválida/desatualizada mantém avaliação pendente, sem escrita. */
   function renderizar() {
     container.replaceChildren();
-    const chuva = lerRegistro(CHAVE_CHUVA, validarChuva);
+    // O leitor conserva o registro antigo e impede que uma demanda desatualizada
+    // produza avaliação positiva ou negativa. Zero confirmado continua válido.
+    const chuva = lerChuvaAtual();
     if (numero === 16) {
       texto(container, "h2", "VOLUME DE CHUVA A SER MANEJADO");
       if (chuva.estado === "valido") {
@@ -93,7 +122,7 @@ export function iniciarResultados(container, numero, catalogo) {
   renderizar();
   // Uma alteração em outra aba invalida também uma finalização apenas visual.
   window.addEventListener("storage", evento => {
-    if ([null, CHAVE_CHUVA, CHAVE_CENARIO].includes(evento.key)) renderizar();
+    if ([null, CHAVE_CHUVA, CHAVE_BACIA, CHAVE_CENARIO].includes(evento.key)) renderizar();
   });
   window.addEventListener("pageshow", evento => { if (evento.persisted) renderizar(); });
 }
