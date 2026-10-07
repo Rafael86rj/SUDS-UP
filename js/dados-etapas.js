@@ -3,6 +3,7 @@
   ----------------
   Este arquivo concentra os textos da metodologia.
   A interface lê esses dados e monta a tela correspondente.
+  Revisão 07/10/2026: orientações alinhadas à consulta, ao resumo e à impressão.
 */
 
 const ETAPAS = [
@@ -13,8 +14,8 @@ const ETAPAS = [
     menu: "Reconhecimento do local",
     descricao: "Levante informações sobre o local e registre as ocorrências de alagamento que sustentam o estudo.",
     objetivo: "Construir um diagnóstico inicial rastreável antes de delimitar a área de contribuição.",
-    passos: ["Consultar fontes confiáveis", "Identificar e descrever os pontos de alagamento", "Localizar as ocorrências no mapa"],
-    resultado: "Mapa inicial dos pontos de alagamento e relação das evidências consultadas.",
+    passos: ["Consultar fontes confiáveis", "Localizar e descrever os pontos de alagamento", "Conferir o endereço ou referência e salvar cada ponto"],
+    resultado: "Pontos de alagamento cadastrados com localização, endereço ou referência e descrição.",
     tipoTela: "mapa-evidencias"
   },
   {
@@ -35,9 +36,9 @@ const ETAPAS = [
     titulo: "Catálogo das técnicas SUDS",
     menu: "Catálogo de SUDS",
     descricao: "Conheça as técnicas contempladas, suas aplicações, características e limitações.",
-    objetivo: "Apoiar uma escolha informada antes da análise detalhada das condicionantes.",
-    passos: ["Consultar as técnicas disponíveis", "Comparar funcionamento e necessidade de infiltração", "Marcar técnicas de interesse"],
-    resultado: "Lista inicial de técnicas candidatas para o terreno.",
+    objetivo: "Apoiar a consulta das técnicas antes da análise detalhada das condicionantes, sem registrar escolhas de projeto.",
+    passos: ["Consultar as técnicas disponíveis", "Comparar funcionamento e necessidade de infiltração", "Consultar as restrições da técnica na Etapa 7"],
+    resultado: "Consulta das técnicas e variantes, sem seleção automática para o estudo.",
     tipoTela: "catalogo"
   },
   {
@@ -58,14 +59,14 @@ const ETAPAS = [
     menu: "Mapeamento técnico",
     descricao: "Registre manualmente as informações consultadas sobre hidrografia, drenagem, infraestrutura, uso do solo e patrimônio.",
     objetivo: "Documentar fontes, referências temporais e lacunas, sem interpretar automaticamente a aptidão para SUDS.",
-    passos: ["Consultar fontes oficiais", "Registrar arquivos e datas", "Identificar lacunas de informação"],
+    passos: ["Consultar fontes oficiais", "Informar identificação, fonte e referência temporal", "Indicar lacunas e salvar o registro documental"],
     resultado: "Inventário das bases e documentos técnicos do entorno.",
     tipoTela: "checklist"
   },
   {
     numero: 6,
     grupo: "Leitura territorial",
-    titulo: "Espaços livres com vocação para SUDS",
+    titulo: "Espaços livres candidatos a SUDS",
     menu: "Espaços livres",
     // Revisão 04/10/2026: cadastro geográfico manual sem classificar aptidão.
     descricao: "Delimite manualmente espaços livres para análise posterior das possibilidades de SUDS.",
@@ -82,7 +83,7 @@ const ETAPAS = [
     descricao: "Compare as exigências de implantação das técnicas com as condições do terreno.",
     objetivo: "Evitar a seleção de técnicas incompatíveis com solo, declividade, dimensões ou infraestrutura.",
     passos: ["Selecionar uma técnica", "Consultar seus limites", "Comparar com as áreas candidatas"],
-    resultado: "Matriz preliminar de compatibilidade entre técnicas e áreas.",
+    resultado: "Consulta das restrições gerais e específicas da variante, sem aprovação automática de áreas.",
     tipoTela: "matriz"
   },
   {
@@ -152,7 +153,7 @@ const ETAPAS = [
     menu: "Pré-dimensionamento",
     descricao: "Informe a área de cada intervenção e calcule o volume que poderá ser manejado.",
     objetivo: "Calcular o volume individual e total das técnicas inseridas no cenário.",
-    passos: ["Selecionar a técnica", "Informar a área", "Revisar profundidade e índice de vazios"],
+    passos: ["Selecionar a técnica e variante", "Informar a área e revisar profundidade e índice de vazios", "Salvar a intervenção para confirmar sua participação no cenário"],
     resultado: "Volume manejado por intervenção e volume total do cenário.",
     tipoTela: "pre-dimensionamento"
   },
@@ -163,7 +164,7 @@ const ETAPAS = [
     menu: "Área de contribuição",
     descricao: "Informe a área e os parâmetros físicos necessários para o cálculo hidrológico.",
     objetivo: "Preparar os dados de entrada do tempo de concentração e da chuva de projeto.",
-    passos: ["Informar área total e área vegetada", "Informar comprimento do talvegue", "Informar cotas máxima e mínima"],
+    passos: ["Informar área total e área vegetada", "Informar comprimento do talvegue e cotas máxima e mínima", "Salvar os dados da bacia para confirmar os parâmetros"],
     resultado: "Parâmetros físicos validados para o cálculo da chuva.",
     tipoTela: "dados-bacia"
   },
@@ -183,7 +184,7 @@ const ETAPAS = [
     grupo: "Avaliação",
     titulo: "Volume de chuva a ser manejado",
     menu: "Volume a manejar",
-    descricao: "Revise o volume calculado e os parâmetros que determinaram a demanda do cenário.",
+    descricao: "Consulte o volume confirmado e atual. Para revisar os parâmetros que determinaram a demanda, retorne à Etapa 15.",
     objetivo: "Apresentar a demanda hidrológica de forma clara antes da comparação final.",
     passos: ["Consultar o volume disponível da Etapa 15", "Conferir a unidade em metros cúbicos", "Revisar a chuva de projeto quando necessário"],
     resultado: "Volume de referência apresentado para avaliação do cenário, quando disponível.",
@@ -194,10 +195,10 @@ const ETAPAS = [
     grupo: "Avaliação",
     titulo: "Avaliação do cenário",
     menu: "Resultado do cenário",
-    descricao: "Compare a capacidade total das técnicas com o volume de chuva que precisa ser manejado.",
+    descricao: "Consulte o resumo do estudo, o mapa consolidado e a comparação entre capacidade e demanda. Imprima os dados confirmados pelo navegador.",
     objetivo: "Decidir se o cenário atende à demanda ou se precisa de novas técnicas e ajustes.",
-    passos: ["Conferir capacidade e demanda confirmadas", "Consultar o percentual e o resultado da comparação", "Revisar as intervenções ou finalizar a visualização do cenário"],
-    resultado: "Comparação dos volumes do cenário, com indicação das revisões necessárias ou finalização visual.",
+    passos: ["Conferir capacidade e demanda confirmadas", "Revisar o mapa, as fontes e as pendências do resumo", "Imprimir ou salvar como PDF pelo diálogo do navegador"],
+    resultado: "Resumo do estudo confirmado, mapa consolidado e avaliação atual, disponíveis para impressão.",
     tipoTela: "resultado"
   }
 ];

@@ -123,8 +123,8 @@ try:
             assert ('O cenário atende à demanda.' if meets else 'O cenário não atende integralmente à demanda.') in page.locator('#avaliacao-resultado').inner_text()
             assert read(page,CENARIO)==old_scenario and read(page,CHUVA)==old_rain
             if meets:
-                page.locator('#avaliacao-finalizar').click()
-                assert 'finalizado nesta visualização' in page.locator('#avaliacao-resultado').inner_text()
+                assert page.locator('#avaliacao-finalizar').count() == 0
+                assert page.locator('#resumo-imprimir').is_visible()
             else:
                 assert page.get_by_role('link',name='Revisar possibilidades',exact=True).get_attribute('href')=='etapa.html?numero=9'
                 assert page.get_by_role('link',name='Revisar pré-dimensionamento',exact=True).get_attribute('href')=='etapa.html?numero=13'

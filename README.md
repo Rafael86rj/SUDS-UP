@@ -192,10 +192,9 @@ Um percentual que exceda a faixa numérica é informado sem exibir infinito.
 Ausência de cenário, coleção vazia, ausência da chuva, incompatibilidade e falha
 de leitura não geram avaliação fictícia. Capacidade zero de intervenções existentes
 é distinguida de ausência de intervenções. Quando não atende, há links para as
-Etapas 9 e 13; a chuva também pode ser revisada. Quando atende, **Finalizar cenário**
-confirma apenas a visualização atual: não persiste outra avaliação, não cria projetos
-e não gera PDF. Alterações em outra aba atualizam os painéis e removem a finalização
-visual anterior. As demais etapas fora do escopo mantêm seu estado atual de protótipo.
+Etapas 9 e 13; a chuva também pode ser revisada. O Lote 5 substitui a antiga
+finalização visual pelo resumo e pela impressão nativa, sem persistir avaliações.
+Alterações nas fontes em outra aba atualizam o resumo.
 
 ### Testes do Lote 1
 
@@ -217,7 +216,8 @@ As Etapas **8 → 10 → 11** utilizam `etapa.html` e o catálogo existente
 `TECNICAS_SUDS`. Não há recomendação automática: as alternativas e a escolha
 final pertencem ao projetista. Os dados confirmados são recuperados ao recarregar
 ou navegar na mesma origem (protocolo, domínio e porta). Rascunhos não são salvos
-automaticamente, e não existem mapas, uploads ou exportação PDF neste lote.
+automaticamente. O Lote 3 acrescenta mapas e o Lote 5 oferece impressão nativa;
+uploads e exportação programática de PDF permanecem fora do escopo.
 
 ### Etapa 8 — Possibilidades preliminares
 
@@ -812,5 +812,54 @@ as fixtures de chuva válida do Lote 1 agora identificam a bacia utilizada.
 Inventário documental manual, sem upload, mapas técnicos automáticos ou seleção
 automática de posto. Nenhuma API foi adicionada. O cálculo usa as equações e os
 coeficientes fornecidos, sem verificação automática de validade regional da IDF.
-Armazenamento local depende da origem/navegador. Relatório final da Etapa 17,
-impressão/PDF, exportações geoespaciais e demais ampliações ficam fora deste lote.
+Armazenamento local depende da origem/navegador. O resumo final e a impressão
+nativa foram acrescentados no Lote 5; exportações geoespaciais permanecem fora do escopo.
+
+## Lote 5 — Resumo final do estudo
+
+A Etapa 17 apresenta avaliação, mapa consolidado, contexto territorial, escolhas
+por área, intervenções, chuva atual, conclusão e disponibilidade das fontes.
+`js/dados/resumo-final.js` lê os contratos existentes: pontos (1), bacia delimitada
+(2), condicionantes (4), inventário (5), espaços/áreas/decisões (6/8/11),
+intervenções (13), dados físicos (14) e chuva confirmada (15). Não há chave de
+relatório, migração ou cópia persistida. A consulta da vistoria (10) permite
+informar incompatibilidades sem modificar seus registros.
+
+A capacidade usa o cálculo oficial da Etapa 13; a demanda passa pela verificação
+de atualidade da Etapa 15. Demanda zero é válida, com percentual não aplicável.
+Chuva desatualizada mantém a avaliação pendente. Déficit e percentual são derivados
+em memória. As técnicas escolhidas e as intervenções permanecem independentes.
+A área delimitada na Etapa 2 e a área total usada na Etapa 14 têm rótulos distintos.
+
+As técnicas definitivamente escolhidas exibem as pranchas originais associadas às
+variantes em `TECNICAS_SUDS`, com nome e texto alternativo. A observação do card
+indica o regime de infiltração; as observações pós-campo do projetista continuam
+separadas, junto do motivo e da restrição. Como não há descrição técnica textual
+fonteada no catálogo, aparece “Descrição técnica: consulte a prancha da técnica.”
+Nenhuma descrição técnica foi criada. Falhas da imagem preservam todos os textos.
+Os cards se adaptam à largura e permanecem na impressão, com pranchas completas
+e preferência por não dividir um card entre páginas.
+
+O período de retorno é apresentado sem zeros decimais desnecessários: `10 anos`,
+`10,5 anos`, `25 anos`. Isso altera somente a apresentação, sem arredondar o valor
+usado no cálculo ou modificar a chuva confirmada.
+
+O mapa reutiliza Leaflet e a interpretação/cores do Cenário 1. Mostra somente
+camadas presentes: pontos, contorno tracejado da bacia e técnicas definitivas com
+geometria. A legenda conta áreas por variante. Na ausência total de geografia,
+não inicializa mapa. Textos e resultados continuam disponíveis sem CDN ou tiles.
+
+**Imprimir / Salvar como PDF** abre `window.print()`. Os estilos da Etapa 17
+ocultam navegação e controles, preservando texto completo, mapa, legenda e data
+local da visualização. A4 é sugerido; o arquivo e a paginação final dependem do
+diálogo/navegador. Não há captura de tela nem geração programática de PDF.
+
+```text
+node tests/lote-5.test.mjs
+python -u tests/validar-lote-5.py
+```
+
+Continuam as limitações do protótipo: armazenamento local, dependência externa de
+Leaflet/tiles, sem backend, login, banco remoto, upload, IA, seleção automática de
+posto ou validação cadastral. O resumo representa somente dados confirmados no
+navegador, não uma aprovação automática do estudo.

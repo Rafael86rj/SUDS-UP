@@ -7,7 +7,7 @@
 // Dependências: Leaflet 1.9.4 já adotado pelo projeto; geometria local.
 // Utilizado por: Editor e consulta do Lote 3.
 // Criado em: 04/10/2026
-// Última revisão: 05/10/2026
+// Última revisão: 07/10/2026
 // ------------------------------------------------------------
 import { coordenadasMapa } from "../dados/lote-3.js";
 import { elemento } from "../lote-2-interface.js";
@@ -68,12 +68,7 @@ export async function criarMapaLote3(pai, aoClicar = null, animarZoom = true) {
   container.setAttribute("aria-label", "Mapa geográfico: use as setas para mover e mais ou menos para zoom");
   container.tabIndex = 0;
   try {
-    if (!carregamento) carregamento = Promise.all([
-      carregarRecurso("link", { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", integrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=", crossOrigin: "" }),
-      carregarRecurso("script", { src: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", integrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=", crossOrigin: "" })
-    ]);
-    await carregamento;
-    const L = window.L;
+    const L = await carregarLeaflet();
     const mapa = L.map(container, { doubleClickZoom: false, zoomAnimation: animarZoom }).setView([-22.9068, -43.1729], 15);
     const confirmados = L.featureGroup().addTo(mapa);
     const rascunho = L.layerGroup().addTo(mapa);
@@ -176,4 +171,17 @@ export async function criarMapaLote3(pai, aoClicar = null, animarZoom = true) {
     container.hidden = true;
     return null;
   }
+}
+
+// ------------------------------------------------------------
+// RECURSO LEAFLET COMPARTILHADO COM O MAPA FINAL
+// ------------------------------------------------------------
+/** @returns {Promise<Object>} Leaflet 1.9.4 após carga única; altera apenas head, nunca storage. Falha rejeita para manter alternativa textual. */
+export async function carregarLeaflet() {
+  if (!carregamento) carregamento = Promise.all([
+    carregarRecurso("link", { rel: "stylesheet", href: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", integrity: "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=", crossOrigin: "" }),
+    carregarRecurso("script", { src: "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", integrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=", crossOrigin: "" })
+  ]);
+  await carregamento;
+  return window.L;
 }

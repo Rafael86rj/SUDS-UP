@@ -1,0 +1,75 @@
+/* ------------------------------------------------------------
+ * SUDS-UP — METADADOS DO ARQUIVO
+ * ------------------------------------------------------------
+ * Arquivo: css/lote-5.css
+ * Módulo: Resumo final, Lote 5.
+ * Objetivo: Leitura responsiva e impressão nativa da Etapa 17.
+ * Responsabilidade: Apresentação; não altera fontes ou cálculos.
+ * Dependências: estilos gerais e classe pagina-resumo-final.
+ * Utilizado por: etapa.html / resumo-final-interface.js.
+ * Criado em: 07/10/2026
+ * Última revisão: 07/10/2026
+ * ------------------------------------------------------------ */
+.lote-5 { min-width: 0; overflow-wrap: anywhere; }
+.lote-5 .resumo-secao { margin-top: 2rem; border-top: 1px solid #ccd5d9; padding-top: 1rem; }
+.lote-5 h4, .lote-5 h5 { margin: 1rem 0 .5rem; }
+.lote-5 p { margin: .6rem 0; }
+.resumo-mapa { height: 420px; width: 100%; z-index: 0; }
+.resumo-mapa[hidden], .resumo-legenda[hidden] { display: none; }
+.resumo-mapa .leaflet-popup-content p { white-space: pre-line; overflow-wrap: anywhere; }
+.resumo-legenda ul { padding-left: 1.4rem; }
+.resumo-legenda li { margin: .5rem 0; }
+.resumo-legenda svg { width: 1rem; height: 1rem; margin-right: .5rem; vertical-align: middle; }
+.resumo-card { border: 1px solid #ccd5d9; padding: .8rem; margin: .8rem 0; border-radius: .4rem; }
+.resumo-dados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.resumo-dados dd { margin: .3rem 0 0; font-weight: 600; }
+.resumo-aviso { padding: .6rem; border-left: 3px solid #926000; }
+/* A prancha inteira acompanha a decisão; texto livre permanece independente. */
+.resumo-tecnica-card { display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr); gap: .5rem 1rem; }
+.resumo-tecnica-card .resumo-tecnica-nome { grid-column: 2; grid-row: 1; margin-top: 0; }
+.resumo-tecnica-prancha { grid-column: 1; grid-row: 1 / span 2; margin: 0; min-width: 0; }
+.resumo-tecnica-prancha img { display: block; width: 100%; height: 260px; object-fit: contain; border: 1px solid var(--borda); border-radius: var(--raio-md); }
+.resumo-tecnica-prancha img[hidden] { display: none; }
+.resumo-tecnica-texto { grid-column: 2; min-width: 0; }
+@media (max-width: 1050px) {
+  .resumo-tecnica-card { display: flex; flex-direction: column; }
+  .resumo-tecnica-prancha { width: 100%; }
+}
+@media (max-width: 600px) {
+  .resumo-dados { grid-template-columns: 1fr; }
+  .resumo-mapa { height: 320px; }
+}
+/* ------------------------------------------------------------
+ * IMPRESSÃO: texto completo e mapa vetorial, sem capturas de tela.
+ * A classe no body mantém as outras etapas fora deste tratamento.
+ * ------------------------------------------------------------ */
+@media print {
+  @page resumo-final { size: A4; margin: 14mm; }
+  .pagina-resumo-final { page: resumo-final; background: white; color: black; font-size: 10pt; }
+  .pagina-resumo-final .barra-superior,
+  .pagina-resumo-final .menu-lateral,
+  .pagina-resumo-final .cabecalho-etapa,
+  .pagina-resumo-final .rodape-etapa,
+  .pagina-resumo-final .modal,
+  .pagina-resumo-final .resumo-interativo,
+  .pagina-resumo-final button,
+  .pagina-resumo-final .leaflet-control-zoom,
+  .pagina-resumo-final .leaflet-popup-pane,
+  .pagina-resumo-final .leaflet-tooltip-pane { display: none !important; }
+  .pagina-resumo-final .aplicacao { display: block; min-height: 0; }
+  .pagina-resumo-final .conteudo-etapa { padding: 0; margin: 0; width: 100%; max-width: none; }
+  .pagina-resumo-final .area-trabalho { display: block; }
+  .pagina-resumo-final .card { padding: 0; border: 0; box-shadow: none; width: 100%; max-width: none; }
+  .pagina-resumo-final .resumo-secao { break-inside: auto; margin-top: 6mm; }
+  .pagina-resumo-final h2, .pagina-resumo-final h3,
+  .pagina-resumo-final h4, .pagina-resumo-final h5 { break-after: avoid; }
+  .pagina-resumo-final .resumo-card, .pagina-resumo-final .lote-metricas { break-inside: avoid; }
+  .pagina-resumo-final .resumo-tecnica-card { display: grid; grid-template-columns: minmax(0, 42%) minmax(0, 1fr); }
+  .pagina-resumo-final .resumo-tecnica-prancha img { height: 60mm; object-fit: contain; }
+  .pagina-resumo-final .resumo-mapa { height: 90mm; width: 100%; break-inside: avoid; }
+  .pagina-resumo-final .resumo-legenda { break-inside: avoid; }
+  .pagina-resumo-final .lote-metricas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pagina-resumo-final .resumo-dados { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pagina-resumo-final .resumo-legenda svg,
+  .pagina-resumo-final .resumo-mapa { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
